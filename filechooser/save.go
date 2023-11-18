@@ -37,8 +37,8 @@ func SaveFile(title string, options *SaveSingleOptions) ([]string, error) {
 
 	err = conn.AddMatchSignal(
 		dbus.WithMatchObjectPath(responcepath),
-		dbus.WithMatchInterface("org.freedesktop.portal.Request"),
-		dbus.WithMatchMember("Response"),
+		dbus.WithMatchInterface(portal.RequestInterface),
+		dbus.WithMatchMember(portal.ResponseMember),
 	)
 	if err != nil {
 		return nil, err
@@ -97,8 +97,8 @@ func SaveFiles(title string, options *SaveMultipleOptions) ([]string, error) {
 
 	err = conn.AddMatchSignal(
 		dbus.WithMatchObjectPath(responcepath),
-		dbus.WithMatchInterface("org.freedesktop.portal.Request"),
-		dbus.WithMatchMember("Response"),
+		dbus.WithMatchInterface(portal.RequestInterface),
+		dbus.WithMatchMember(portal.ResponseMember),
 	)
 	if err != nil {
 		return nil, err
