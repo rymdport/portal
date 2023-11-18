@@ -6,6 +6,8 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
+const notificationCallName = callBaseName + ".Notification"
+
 // Priority is the priroity of a notification.
 type Priority = string
 
@@ -38,8 +40,8 @@ func AddNotification(id uint, content *Notification) error {
 		"priority": dbus.MakeVariant(content.Priority),
 	}
 
-	obj := bus.Object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
-	call := obj.Call("org.freedesktop.portal.Notification.AddNotification", 0, strconv.FormatUint(uint64(id), 10), data)
+	obj := bus.Object(objectName, objectPath)
+	call := obj.Call(notificationCallName+".AddNotification", 0, strconv.FormatUint(uint64(id), 10), data)
 	return call.Err
 }
 
@@ -50,7 +52,7 @@ func RemoveNotification(id uint) error {
 		return err
 	}
 
-	obj := bus.Object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
-	call := obj.Call("org.freedesktop.portal.Notification.RemoveNotification", 0, strconv.FormatUint(uint64(id), 10))
+	obj := bus.Object(objectName, objectPath)
+	call := obj.Call(notificationCallName+".RemoveNotification", 0, strconv.FormatUint(uint64(id), 10))
 	return call.Err
 }
