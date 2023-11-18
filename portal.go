@@ -1,8 +1,8 @@
 package portal
 
 const (
-	objectName = "org.freedesktop.portal.Desktop"
-	objectPath = "/org/freedesktop/portal/desktop"
+	ObjectName = "org.freedesktop.portal.Desktop"
+	ObjectPath = "/org/freedesktop/portal/desktop"
 
-	callBaseName = "org.freedesktop.portal"
+	CallBaseName = "org.freedesktop.portal"
 )

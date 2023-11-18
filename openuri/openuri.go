@@ -1,11 +1,12 @@
-package portal
+package openuri
 
 import (
 	"github.com/fredbi/uri"
 	"github.com/godbus/dbus/v5"
+	"github.com/rymdport/portal"
 )
 
-const openURICallName = callBaseName + "OpenURI"
+const openURICallName = portal.CallBaseName + ".OpenURI"
 
 // OpenURI opens the given URI in the corresponding application.
 func OpenURI(uri uri.URI) error {
@@ -15,9 +16,9 @@ func OpenURI(uri uri.URI) error {
 	}
 
 	parentWindow := ""
-	options := map[string]dbus.Variant{}
+	data := map[string]dbus.Variant{}
 
-	obj := conn.Object(objectName, objectPath)
-	call := obj.Call(openURICallName+".OpenURI", 0, parentWindow, uri.String(), options)
+	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	call := obj.Call(openURICallName+".OpenURI", 0, parentWindow, uri.String(), data)
 	return call.Err
 }

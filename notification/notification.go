@@ -1,12 +1,13 @@
-package portal
+package notification
 
 import (
 	"strconv"
 
 	"github.com/godbus/dbus/v5"
+	"github.com/rymdport/portal"
 )
 
-const notificationCallName = callBaseName + ".Notification"
+const notificationCallName = portal.CallBaseName + ".Notification"
 
 // Priority is the priroity of a notification.
 type Priority = string
@@ -40,7 +41,7 @@ func AddNotification(id uint, content *Notification) error {
 		"priority": dbus.MakeVariant(content.Priority),
 	}
 
-	obj := bus.Object(objectName, objectPath)
+	obj := bus.Object(portal.ObjectName, portal.ObjectPath)
 	call := obj.Call(notificationCallName+".AddNotification", 0, strconv.FormatUint(uint64(id), 10), data)
 	return call.Err
 }
@@ -52,7 +53,7 @@ func RemoveNotification(id uint) error {
 		return err
 	}
 
-	obj := bus.Object(objectName, objectPath)
+	obj := bus.Object(portal.ObjectName, portal.ObjectPath)
 	call := obj.Call(notificationCallName+".RemoveNotification", 0, strconv.FormatUint(uint64(id), 10))
 	return call.Err
 }
