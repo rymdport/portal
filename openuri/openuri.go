@@ -8,13 +8,12 @@ import (
 const openURICallName = portal.CallBaseName + ".OpenURI"
 
 // OpenURI opens the given URI in the corresponding application.
-func OpenURI(uri string) error {
+func OpenURI(parentWindow, uri string) error {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return err
 	}
 
-	parentWindow := ""
 	data := map[string]dbus.Variant{}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)

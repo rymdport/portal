@@ -12,13 +12,12 @@ type SaveSingleOptions struct {
 
 // SaveFile opens a filechooser for selecting where to save a file.
 // The chooser will use the supplied title as it's name.
-func SaveFile(title string, options *SaveSingleOptions) ([]string, error) {
+func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
-	parentWindow := ""
 	data := map[string]dbus.Variant{
 		"modal": dbus.MakeVariant(options.Modal),
 	}
@@ -39,13 +38,12 @@ type SaveMultipleOptions struct {
 
 // SaveFiles opens a filechooser for selecting where to save one or more files.
 // The chooser will use the supplied title as it's name.
-func SaveFiles(title string, options *SaveMultipleOptions) ([]string, error) {
+func SaveFiles(parentWindow, title string, options *SaveMultipleOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
-	parentWindow := ""
 	data := map[string]dbus.Variant{
 		"modal": dbus.MakeVariant(options.Modal),
 	}

@@ -14,13 +14,12 @@ type OpenOptions struct {
 
 // OpenFile opens a filechooser for selecting a file to open.
 // The chooser will use the supplied title as it's name.
-func OpenFile(title string, options *OpenOptions) ([]string, error) {
+func OpenFile(parentWindow, title string, options *OpenOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
-	parentWindow := ""
 	data := map[string]dbus.Variant{
 		"modal":     dbus.MakeVariant(options.Modal),
 		"multiple":  dbus.MakeVariant(options.Multiple),
