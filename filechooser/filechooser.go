@@ -9,7 +9,7 @@ import (
 
 const fileChooserCallName = portal.CallBaseName + ".FileChooser"
 
-var errorUnexpectedResponse = errors.New("unexpected responce")
+var errorUnexpectedResponse = errors.New("unexpected response")
 
 func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 	var responcepath dbus.ObjectPath
