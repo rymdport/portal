@@ -35,10 +35,14 @@ func Add(id uint, content *Content) error {
 	}
 
 	data := map[string]dbus.Variant{
-		"title":    dbus.MakeVariant(content.Title),
-		"body":     dbus.MakeVariant(content.Body),
-		"icon":     dbus.MakeVariant(content.Icon),
-		"priority": dbus.MakeVariant(content.Priority),
+		"title": dbus.MakeVariant(content.Title),
+		"body":  dbus.MakeVariant(content.Body),
+		"icon":  dbus.MakeVariant(content.Icon),
+	}
+
+	// Only add the priority field when it is set.
+	if content.Priority != "" {
+		data["priority"] = dbus.MakeVariant(content.Priority)
 	}
 
 	obj := bus.Object(portal.ObjectName, portal.ObjectPath)
