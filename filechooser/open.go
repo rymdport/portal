@@ -7,9 +7,10 @@ import (
 
 // OpenOptions contains the options for how files are to be selected.
 type OpenOptions struct {
-	Modal     bool
-	Multiple  bool
-	Directory bool
+	Modal       bool
+	Multiple    bool
+	Directory   bool
+	AcceptLabel string
 }
 
 // OpenFile opens a filechooser for selecting a file to open.
@@ -24,6 +25,10 @@ func OpenFile(parentWindow, title string, options *OpenOptions) ([]string, error
 		"modal":     dbus.MakeVariant(options.Modal),
 		"multiple":  dbus.MakeVariant(options.Multiple),
 		"directory": dbus.MakeVariant(options.Directory),
+	}
+
+	if options.AcceptLabel != "" {
+		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
