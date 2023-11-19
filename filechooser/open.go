@@ -7,7 +7,7 @@ import (
 	"github.com/rymdport/portal"
 )
 
-var errorUnexpectedResponce = errors.New("unexpected responce")
+var errorUnexpectedResponse = errors.New("unexpected responce")
 
 // OpenOptions contains the options for how files are to be selected.
 type OpenOptions struct {
@@ -57,17 +57,17 @@ func OpenFile(title string, options *OpenOptions) ([]string, error) {
 
 	responce := <-dbusChan
 	if len(responce.Body) != 2 {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	result, ok := responce.Body[1].(map[string]dbus.Variant)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	uris, ok := result["uris"].Value().([]string)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	return uris, nil

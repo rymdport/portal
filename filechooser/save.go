@@ -49,17 +49,17 @@ func SaveFile(title string, options *SaveSingleOptions) ([]string, error) {
 
 	responce := <-dbusChan
 	if len(responce.Body) != 2 {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	result, ok := responce.Body[1].(map[string]dbus.Variant)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	uris, ok := result["uris"].Value().([]string)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	return uris, nil
@@ -109,17 +109,17 @@ func SaveFiles(title string, options *SaveMultipleOptions) ([]string, error) {
 
 	responce := <-dbusChan
 	if len(responce.Body) != 2 {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	result, ok := responce.Body[1].(map[string]dbus.Variant)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	uris, ok := result["uris"].Value().([]string)
 	if !ok {
-		return nil, errorUnexpectedResponce
+		return nil, errorUnexpectedResponse
 	}
 
 	return uris, nil
