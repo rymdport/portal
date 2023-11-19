@@ -19,16 +19,16 @@ const (
 	Urgent Priority = "urgent"
 )
 
-// Notification holds the content to send with the notification.
-type Notification struct {
+// Content holds the content to send with the notification.
+type Content struct {
 	Title    string
 	Body     string
 	Icon     string
 	Priority Priority
 }
 
-// AddNotification sends a notification using org.freedesktop.portal.Notification.AddNotification.
-func AddNotification(id uint, content *Notification) error {
+// Add sends a notification using org.freedesktop.portal.Notification.Add.
+func Add(id uint, content *Content) error {
 	bus, err := dbus.SessionBus() // shared connection, don't close.
 	if err != nil {
 		return err
@@ -46,8 +46,8 @@ func AddNotification(id uint, content *Notification) error {
 	return call.Err
 }
 
-// RemoveNotification removes the notification with the corresponding id.
-func RemoveNotification(id uint) error {
+// Remove removes the notification with the corresponding id.
+func Remove(id uint) error {
 	bus, err := dbus.SessionBus() // shared connection, don't close.
 	if err != nil {
 		return err
