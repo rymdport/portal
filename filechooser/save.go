@@ -10,6 +10,7 @@ type SaveSingleOptions struct {
 	Modal       bool
 	AcceptLabel string
 	FileName    string
+	Location    string
 }
 
 // SaveFile opens a filechooser for selecting where to save a file.
@@ -32,6 +33,11 @@ func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string,
 		data["current_name"] = dbus.MakeVariant(options.FileName)
 	}
 
+	if options.Location != "" {
+		nullTerminatedByteString := []byte(options.Location + "\000")
+		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
+	}
+
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
 	call := obj.Call(fileChooserCallName+".SaveFile", 0, parentWindow, title, data)
 	if call.Err != nil {
@@ -45,6 +51,7 @@ func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string,
 type SaveMultipleOptions struct {
 	Modal       bool
 	AcceptLabel string
+	Location    string
 }
 
 // SaveFiles opens a filechooser for selecting where to save one or more files.
@@ -61,6 +68,11 @@ func SaveFiles(parentWindow, title string, options *SaveMultipleOptions) ([]stri
 
 	if options.AcceptLabel != "" {
 		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+	}
+
+	if options.Location != "" {
+		nullTerminatedByteString := []byte(options.Location + "\000")
+		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)

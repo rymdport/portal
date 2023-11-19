@@ -11,6 +11,7 @@ type OpenOptions struct {
 	Multiple    bool
 	Directory   bool
 	AcceptLabel string
+	Location    string
 }
 
 // OpenFile opens a filechooser for selecting a file to open.
@@ -29,6 +30,11 @@ func OpenFile(parentWindow, title string, options *OpenOptions) ([]string, error
 
 	if options.AcceptLabel != "" {
 		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+	}
+
+	if options.Location != "" {
+		nullTerminatedByteString := []byte(options.Location + "\000")
+		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
