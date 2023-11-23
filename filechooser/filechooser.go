@@ -12,14 +12,14 @@ const fileChooserCallName = portal.CallBaseName + ".FileChooser"
 var errorUnexpectedResponse = errors.New("unexpected response")
 
 func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
-	var responcepath dbus.ObjectPath
-	err := call.Store(&responcepath)
+	var responsePath dbus.ObjectPath
+	err := call.Store(&responsePath)
 	if err != nil {
 		return nil, err
 	}
 
 	err = conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(responcepath),
+		dbus.WithMatchObjectPath(responsePath),
 		dbus.WithMatchInterface(portal.RequestInterface),
 		dbus.WithMatchMember(portal.ResponseMember),
 	)
@@ -30,12 +30,18 @@ func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 	dbusChan := make(chan *dbus.Signal)
 	conn.Signal(dbusChan)
 
-	responce := <-dbusChan
-	if len(responce.Body) != 2 {
+	response := <-dbusChan
+	if len(response.Body) != 2 {
 		return nil, errorUnexpectedResponse
 	}
 
-	result, ok := responce.Body[1].(map[string]dbus.Variant)
+	if responseKey, ok := response.Body[0].(uint32); !ok {
+		return nil, errorUnexpectedResponse
+	} else if responseKey == 1 || responseKey == 2 {
+		return nil, nil
+	}
+
+	result, ok := response.Body[1].(map[string]dbus.Variant)
 	if !ok {
 		return nil, errorUnexpectedResponse
 	}
