@@ -15,13 +15,43 @@ The goal of this project is to be a toolkit agnostic package for Go graphical us
 
 ## Supported Portal APIs
 
-The following APIs are partially or completely implemented:
+The lsit below contains all of the portal APIs available as of 2024-03-14. Checked boxes are partially or completely implemented within this project.
 
-- [x] [Notification](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Notification.html)
-- [x] [OpenURI](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.OpenURI.html)
-- [x] [FileChooser](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.FileChooser.html)
+- [ ] Account
+- [ ] Background
+- [ ] Camera
+- [ ] Clipboard
+- [ ] Device
+- [ ] Documents
+- [ ] Dynamic Launcher
+- [ ] Email
+- [x] File Chooser
+- [ ] File Transfer
+- [ ] Game Mode
+- [ ] Global Shortcuts
+- [ ] Inhibit
+- [ ] Input Capture
+- [ ] Location
+- [ ] Memory Monitor
+- [ ] Network Monitor
+- [x] Notification
+- [x] OpenURI
+- [ ] Power Profile Monitor
+- [ ] Print
+- [ ] Proxy Resolver
+- [ ] Realtime
+- [ ] Remote Desktop
+- [ ] Request
+- [ ] ScreenCast
+- [ ] Screenshot
+- [ ] Secret
+- [ ] Session
+- [x] Settings
+- [ ] Trash
+- [ ] Wallpaper
 
-## Integrations into other projects
+
+## Used by other projects
 
 This section is meant as a reference to where this project is being used. Feel free to add yours if desired.
 
