@@ -26,7 +26,7 @@ func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string,
 	}
 
 	if options.AcceptLabel != "" {
-		data["accept_label"] = dbus.MakeVariant("") //dbus.MakeVariant(options.AcceptLabel)
+		data["accept_label"] = dbus.MakeVariant("") // dbus.MakeVariant(options.AcceptLabel)
 	}
 
 	if options.FileName != "" {
