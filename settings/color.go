@@ -7,13 +7,21 @@ import (
 
 const readOneCallPath = settingsCallPath + ".ReadOne"
 
-// ColorScheme is the type of color scheme preference that the user has set.
+// ColorScheme indicates the system’s preferred color scheme.
 type ColorScheme uint8
 
 const (
-	NoPreference = ColorScheme(iota) // Indicates that no appearance preference was set.
-	Dark                             // Indicates that dark mode is preferred.
-	Light                            // Indicates that light mode is preferred.
+	NoPreference = ColorScheme(iota) // No preference.
+	Dark                             // Prefer dark appearance.
+	Light                            // Prefer light appearance.
+)
+
+// Contrast indicates the system’s preferred contrast level.
+type Contrast uint8
+
+const (
+	NormalContrast = Contrast(iota) // No preference (normal contrast)
+	HigherContrast                  // Higher contrast
 )
 
 // GetColorScheme returns the currently set color scheme.
@@ -39,5 +47,39 @@ func GetColorScheme() (ColorScheme, error) {
 		return NoPreference, err
 	}
 
+	if value > 2 {
+		value = 0 // Unknown values should be treated as 0 (no preference).
+	}
+
 	return ColorScheme(value), nil
+}
+
+// GetContrast returns the currently set contrast setting.
+func GetContrast() (Contrast, error) {
+	dbusConn, err := dbus.SessionBus()
+	if err != nil {
+		return NormalContrast, err
+	}
+
+	dbusObj := dbusConn.Object(portal.ObjectName, portal.ObjectPath)
+	call := dbusObj.Call(
+		readOneCallPath,
+		dbus.FlagNoAutoStart,
+		"org.freedesktop.appearance",
+		"contrast",
+	)
+	if call.Err != nil {
+		return NormalContrast, err
+	}
+
+	var value uint8
+	if err = call.Store(&value); err != nil {
+		return NormalContrast, err
+	}
+
+	if value > 1 {
+		value = 0 // Unknown values should be treated as 0 (no preference).
+	}
+
+	return Contrast(value), nil
 }
