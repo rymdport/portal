@@ -2,7 +2,7 @@ package filechooser
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 )
 
@@ -39,7 +39,7 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
-	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(openFileCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err

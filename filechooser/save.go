@@ -2,7 +2,7 @@ package filechooser
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 )
 
@@ -43,7 +43,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
-	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(saveFileCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err
@@ -79,7 +79,7 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
-	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(saveFilesCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err

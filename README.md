@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	options := filechooser.OpenOptions{Multiple: true}
+	options := filechooser.OpenFileOptions{Multiple: true}
 	files, err := filechooser.OpenFile("", "Select files", &options)
 	if err != nil {
 		log.Fatalln(err)

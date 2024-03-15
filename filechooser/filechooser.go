@@ -3,15 +3,12 @@
 package filechooser
 
 import (
-	"errors"
-
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
-const fileChooserCallName = portal.CallBaseName + ".FileChooser"
-
-var errorUnexpectedResponse = errors.New("unexpected response")
+const fileChooserCallName = apis.CallBaseName + ".FileChooser"
 
 func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 	var responsePath dbus.ObjectPath
@@ -22,8 +19,8 @@ func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 
 	err = conn.AddMatchSignal(
 		dbus.WithMatchObjectPath(responsePath),
-		dbus.WithMatchInterface(portal.RequestInterface),
-		dbus.WithMatchMember(portal.ResponseMember),
+		dbus.WithMatchInterface(apis.RequestInterface),
+		dbus.WithMatchMember(apis.ResponseMember),
 	)
 	if err != nil {
 		return nil, err
@@ -34,23 +31,23 @@ func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 
 	response := <-dbusChan
 	if len(response.Body) != 2 {
-		return nil, errorUnexpectedResponse
+		return nil, portal.ErrUnexpectedResponse
 	}
 
 	if responseKey, ok := response.Body[0].(uint32); !ok {
-		return nil, errorUnexpectedResponse
+		return nil, portal.ErrUnexpectedResponse
 	} else if responseKey == 1 || responseKey == 2 {
 		return nil, nil
 	}
 
 	result, ok := response.Body[1].(map[string]dbus.Variant)
 	if !ok {
-		return nil, errorUnexpectedResponse
+		return nil, portal.ErrUnexpectedResponse
 	}
 
 	uris, ok := result["uris"].Value().([]string)
 	if !ok {
-		return nil, errorUnexpectedResponse
+		return nil, portal.ErrUnexpectedResponse
 	}
 
 	return uris, nil

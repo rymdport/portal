@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
-const notificationCallName = portal.CallBaseName + ".Notification"
+const notificationCallName = apis.CallBaseName + ".Notification"
 
 // Priority is the priroity of a notification.
 type Priority = string
@@ -47,7 +47,7 @@ func Add(id uint, content *Content) error {
 		data["priority"] = dbus.MakeVariant(content.Priority)
 	}
 
-	obj := bus.Object(portal.ObjectName, portal.ObjectPath)
+	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(notificationCallName+".AddNotification", 0, strconv.FormatUint(uint64(id), 10), data)
 	return call.Err
 }
@@ -59,7 +59,7 @@ func Remove(id uint) error {
 		return err
 	}
 
-	obj := bus.Object(portal.ObjectName, portal.ObjectPath)
+	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(notificationCallName+".RemoveNotification", 0, strconv.FormatUint(uint64(id), 10))
 	return call.Err
 }

@@ -5,7 +5,7 @@ import (
 	"image/color"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
 // ErrNotSet indicates that the value is not set.
@@ -37,7 +37,7 @@ func GetColorScheme() (ColorScheme, error) {
 		return NoPreference, err
 	}
 
-	dbusObj := dbusConn.Object(portal.ObjectName, portal.ObjectPath)
+	dbusObj := dbusConn.Object(apis.ObjectName, apis.ObjectPath)
 	call := dbusObj.Call(
 		readOneCallPath,
 		dbus.FlagNoAutoStart,
@@ -68,7 +68,7 @@ func GetAccentColor() (color.RGBA, error) {
 		return color.RGBA{}, err
 	}
 
-	dbusObj := dbusConn.Object(portal.ObjectName, portal.ObjectPath)
+	dbusObj := dbusConn.Object(apis.ObjectName, apis.ObjectPath)
 	call := dbusObj.Call(
 		readOneCallPath,
 		dbus.FlagNoAutoStart,
@@ -123,7 +123,7 @@ func GetContrast() (Contrast, error) {
 		return NormalContrast, err
 	}
 
-	dbusObj := dbusConn.Object(portal.ObjectName, portal.ObjectPath)
+	dbusObj := dbusConn.Object(apis.ObjectName, apis.ObjectPath)
 	call := dbusObj.Call(
 		readOneCallPath,
 		dbus.FlagNoAutoStart,

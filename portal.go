@@ -1,13 +1,6 @@
 package portal
 
-// TODO: Move these internal details to internal/ package.
+import "errors"
 
-const (
-	ObjectName = "org.freedesktop.portal.Desktop"
-	ObjectPath = "/org/freedesktop/portal/desktop"
-
-	CallBaseName = "org.freedesktop.portal"
-
-	RequestInterface = "org.freedesktop.portal.Request"
-	ResponseMember   = "Response"
-)
+// ErrunexpectedResonse is returned when the received dbus data was in an unexpected format.
+var ErrUnexpectedResponse = errors.New("unexpected response from dbus")

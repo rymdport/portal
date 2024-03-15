@@ -4,11 +4,11 @@ package openuri
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
 const (
-	openURIBaseName = portal.CallBaseName + ".OpenURI"
+	openURIBaseName = apis.CallBaseName + ".OpenURI"
 	openURICallName = openURIBaseName + ".OpenURI"
 )
 
@@ -21,7 +21,7 @@ func OpenURI(parentWindow, uri string) error {
 
 	data := map[string]dbus.Variant{}
 
-	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(openURICallName, 0, parentWindow, uri, data)
 	return call.Err
 }

@@ -2,10 +2,10 @@ package settings
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
-const settingsCallPath = portal.CallBaseName + ".Settings"
+const settingsCallPath = apis.CallBaseName + ".Settings"
 
 // WatchSettingsChange allows setting a function to run each time the portal settings change.
 func WatchSettingsChange(callback func(value []any)) error {
@@ -15,7 +15,7 @@ func WatchSettingsChange(callback func(value []any)) error {
 	}
 
 	if err := conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(portal.ObjectPath),
+		dbus.WithMatchObjectPath(apis.ObjectPath),
 		dbus.WithMatchInterface(settingsCallPath),
 		dbus.WithMatchMember("SettingChanged"),
 	); err != nil {
