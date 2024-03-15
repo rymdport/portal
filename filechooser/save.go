@@ -5,36 +5,36 @@ import (
 	"github.com/rymdport/portal"
 )
 
-// SaveSingleOptions contains the options for how a file is saved.
-type SaveSingleOptions struct {
-	Modal       bool
-	AcceptLabel string
-	FileName    string
-	Location    string
+// SaveFileOptions contains the options for how a file is saved.
+type SaveFileOptions struct {
+	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
+	NotModal      bool   // Whether the dialog should not be modal.
+	CurrentName   string // Suggested name of the file.
+	CurrentFolder string // Suggested folder in which the file should be saved.
 }
 
 // SaveFile opens a filechooser for selecting where to save a file.
 // The chooser will use the supplied title as it's name.
-func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string, error) {
+func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
 	data := map[string]dbus.Variant{
-		"modal": dbus.MakeVariant(options.Modal),
+		"modal": dbus.MakeVariant(!options.NotModal),
 	}
 
 	if options.AcceptLabel != "" {
 		data["accept_label"] = dbus.MakeVariant("") // dbus.MakeVariant(options.AcceptLabel)
 	}
 
-	if options.FileName != "" {
-		data["current_name"] = dbus.MakeVariant(options.FileName)
+	if options.CurrentName != "" {
+		data["current_name"] = dbus.MakeVariant(options.CurrentName)
 	}
 
-	if options.Location != "" {
-		nullTerminatedByteString := []byte(options.Location + "\000")
+	if options.CurrentFolder != "" {
+		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
 		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
 	}
 
@@ -47,31 +47,31 @@ func SaveFile(parentWindow, title string, options *SaveSingleOptions) ([]string,
 	return readURIFromResponse(conn, call)
 }
 
-// SaveMultipleOptions contains the options for how files are saved.
-type SaveMultipleOptions struct {
-	Modal       bool
-	AcceptLabel string
-	Location    string
+// SaveFilesOptions contains the options for how files are saved.
+type SaveFilesOptions struct {
+	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
+	NotModal      bool   // Whether the dialog should be modal.
+	CurrentFolder string // Suggested folder in which the file should be saved.
 }
 
 // SaveFiles opens a filechooser for selecting where to save one or more files.
 // The chooser will use the supplied title as it's name.
-func SaveFiles(parentWindow, title string, options *SaveMultipleOptions) ([]string, error) {
+func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
 	data := map[string]dbus.Variant{
-		"modal": dbus.MakeVariant(options.Modal),
+		"modal": dbus.MakeVariant(!options.NotModal),
 	}
 
 	if options.AcceptLabel != "" {
 		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
 	}
 
-	if options.Location != "" {
-		nullTerminatedByteString := []byte(options.Location + "\000")
+	if options.CurrentFolder != "" {
+		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
 		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
 	}
 

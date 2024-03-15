@@ -5,25 +5,25 @@ import (
 	"github.com/rymdport/portal"
 )
 
-// OpenOptions contains the options for how files are to be selected.
-type OpenOptions struct {
-	Modal       bool
-	Multiple    bool
-	Directory   bool
-	AcceptLabel string
-	Location    string
+// OpenFileOptions contains the options for how files are to be selected.
+type OpenFileOptions struct {
+	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
+	NotModal      bool   // Whether the dialog should not be modal.
+	Multiple      bool   // Whether multiple files can be selected or not.
+	Directory     bool   // Whether to select for folders instead of files.
+	CurrentFolder string // Suggested folder from which the files should be opened.
 }
 
 // OpenFile opens a filechooser for selecting a file to open.
 // The chooser will use the supplied title as it's name.
-func OpenFile(parentWindow, title string, options *OpenOptions) ([]string, error) {
+func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
 	}
 
 	data := map[string]dbus.Variant{
-		"modal":     dbus.MakeVariant(options.Modal),
+		"modal":     dbus.MakeVariant(!options.NotModal),
 		"multiple":  dbus.MakeVariant(options.Multiple),
 		"directory": dbus.MakeVariant(options.Directory),
 	}
@@ -32,8 +32,8 @@ func OpenFile(parentWindow, title string, options *OpenOptions) ([]string, error
 		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
 	}
 
-	if options.Location != "" {
-		nullTerminatedByteString := []byte(options.Location + "\000")
+	if options.CurrentFolder != "" {
+		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
 		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
 	}
 
