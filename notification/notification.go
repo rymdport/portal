@@ -1,3 +1,5 @@
+// Package notification lets sandboxed applications send and withdraw notifications. It is not possible for the application to learn if the notification was actually presented to the user.
+// Upstream API documentation can be found at https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Notification.html.
 package notification
 
 import (
