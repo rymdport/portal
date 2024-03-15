@@ -7,7 +7,10 @@ import (
 	"github.com/rymdport/portal"
 )
 
-const openURICallName = portal.CallBaseName + ".OpenURI"
+const (
+	openURIBaseName = portal.CallBaseName + ".OpenURI"
+	openURICallName = openURIBaseName + ".OpenURI"
+)
 
 // OpenURI opens the given URI in the corresponding application.
 func OpenURI(parentWindow, uri string) error {
@@ -19,6 +22,6 @@ func OpenURI(parentWindow, uri string) error {
 	data := map[string]dbus.Variant{}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
-	call := obj.Call(openURICallName+".OpenURI", 0, parentWindow, uri, data)
+	call := obj.Call(openURICallName, 0, parentWindow, uri, data)
 	return call.Err
 }
