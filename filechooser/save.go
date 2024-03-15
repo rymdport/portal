@@ -13,6 +13,7 @@ const (
 
 // SaveFileOptions contains the options for how a file is saved.
 type SaveFileOptions struct {
+	HandleToken   string // A string that will be used as the last element of the handle. Must be a valid object path element.
 	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
 	NotModal      bool   // Whether the dialog should not be modal.
 	CurrentName   string // Suggested name of the file.
@@ -29,6 +30,10 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 
 	data := map[string]dbus.Variant{
 		"modal": dbus.MakeVariant(!options.NotModal),
+	}
+
+	if options.HandleToken != "" {
+		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
 	}
 
 	if options.AcceptLabel != "" {
@@ -54,6 +59,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 
 // SaveFilesOptions contains the options for how files are saved.
 type SaveFilesOptions struct {
+	HandleToken   string // A string that will be used as the last element of the handle. Must be a valid object path element.
 	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
 	NotModal      bool   // Whether the dialog should be modal.
 	CurrentFolder string // Suggested folder in which the file should be saved.
@@ -69,6 +75,10 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 
 	data := map[string]dbus.Variant{
 		"modal": dbus.MakeVariant(!options.NotModal),
+	}
+
+	if options.HandleToken != "" {
+		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
 	}
 
 	if options.AcceptLabel != "" {

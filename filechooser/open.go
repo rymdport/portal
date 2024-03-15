@@ -10,6 +10,7 @@ const openFileCallName = fileChooserCallName + ".OpenFile"
 
 // OpenFileOptions contains the options for how files are to be selected.
 type OpenFileOptions struct {
+	HandleToken   string // A string that will be used as the last element of the handle. Must be a valid object path element.
 	AcceptLabel   string // Label for the accept button. Mnemonic underlines are allowed.
 	NotModal      bool   // Whether the dialog should not be modal.
 	Multiple      bool   // Whether multiple files can be selected or not.
@@ -29,6 +30,10 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		"modal":     dbus.MakeVariant(!options.NotModal),
 		"multiple":  dbus.MakeVariant(options.Multiple),
 		"directory": dbus.MakeVariant(options.Directory),
+	}
+
+	if options.HandleToken != "" {
+		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
 	}
 
 	if options.AcceptLabel != "" {
