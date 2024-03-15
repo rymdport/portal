@@ -1,9 +1,15 @@
 package settings
 
 import (
+	"errors"
+	"image/color"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
 )
+
+// ErrNotSet indicates that the value is not set.
+var ErrNotSet = errors.New("not set")
 
 const readOneCallPath = settingsCallPath + ".ReadOne"
 
@@ -52,6 +58,62 @@ func GetColorScheme() (ColorScheme, error) {
 	}
 
 	return ColorScheme(value), nil
+}
+
+// GetAccentColor returns the currently set accent color.
+// If not set, the ErrorNotSet will be returned.
+func GetAccentColor() (color.RGBA, error) {
+	dbusConn, err := dbus.SessionBus()
+	if err != nil {
+		return color.RGBA{}, err
+	}
+
+	dbusObj := dbusConn.Object(portal.ObjectName, portal.ObjectPath)
+	call := dbusObj.Call(
+		readOneCallPath,
+		dbus.FlagNoAutoStart,
+		"org.freedesktop.appearance",
+		"accent-color",
+	)
+	if call.Err != nil {
+		return color.RGBA{}, err
+	}
+
+	var value []float64
+	if err = call.Store(&value); err != nil {
+		return color.RGBA{}, err
+	}
+
+	if len(value) != 4 {
+		return color.RGBA{}, ErrNotSet
+	}
+
+	red := value[0] * 255
+	if red < 0 || red > 255 {
+		return color.RGBA{}, ErrNotSet
+	}
+
+	green := value[1] * 255
+	if green < 0 || green > 255 {
+		return color.RGBA{}, ErrNotSet
+	}
+
+	blue := value[2] * 255
+	if blue < 0 || blue > 255 {
+		return color.RGBA{}, ErrNotSet
+	}
+
+	alpha := value[3] * 255
+	if alpha < 0 || alpha > 255 {
+		return color.RGBA{}, ErrNotSet
+	}
+
+	return color.RGBA{
+		R: uint8(red),
+		G: uint8(green),
+		B: uint8(blue),
+		A: uint8(alpha),
+	}, nil
 }
 
 // GetContrast returns the currently set contrast setting.
