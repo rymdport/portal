@@ -9,7 +9,11 @@ import (
 	"github.com/rymdport/portal/internal/apis"
 )
 
-const notificationCallName = apis.CallBaseName + ".Notification"
+const (
+	notificationBaseName       = apis.CallBaseName + ".Notification"
+	addNotificationCallName    = notificationBaseName + ".AddNotification"
+	removeNotificationCallName = notificationBaseName + ".RemoveNotification"
+)
 
 // Priority is the priroity of a notification.
 type Priority = string
@@ -23,10 +27,10 @@ const (
 
 // Content holds the content to send with the notification.
 type Content struct {
-	Title    string
-	Body     string
-	Icon     string
-	Priority Priority
+	Title    string   // User-visible string to display as the title.
+	Body     string   // User-visible string to display as the body.
+	Icon     string   // Serialized icon or name of application icon.
+	Priority Priority // The priority for the notification.
 }
 
 // Add sends a notification using org.freedesktop.portal.Notification.Add.
@@ -48,7 +52,7 @@ func Add(id uint, content *Content) error {
 	}
 
 	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(notificationCallName+".AddNotification", 0, strconv.FormatUint(uint64(id), 10), data)
+	call := obj.Call(addNotificationCallName, 0, strconv.FormatUint(uint64(id), 10), data)
 	return call.Err
 }
 
@@ -60,6 +64,6 @@ func Remove(id uint) error {
 	}
 
 	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(notificationCallName+".RemoveNotification", 0, strconv.FormatUint(uint64(id), 10))
+	call := obj.Call(removeNotificationCallName, 0, strconv.FormatUint(uint64(id), 10))
 	return call.Err
 }
