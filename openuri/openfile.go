@@ -2,7 +2,7 @@ package openuri
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/apis"
 )
 
 const openFileCallName = openURIBaseName + ".OpenFile"
@@ -16,7 +16,7 @@ func OpenFile(parentWindow string, fd uintptr) error {
 
 	data := map[string]dbus.Variant{}
 
-	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
+	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(openFileCallName, 0, parentWindow, dbus.UnixFDIndex(fd), data)
 	return call.Err
 }
