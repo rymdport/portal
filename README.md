@@ -13,6 +13,32 @@ The portal APIs should also work good even when used outside of a sandboxed envi
 
 The goal of this project is to be a toolkit agnostic package for Go graphical user interface toolkits, and any other user case that needs it, to use the portals for improved Flatpak support etc.
 
+## Example
+
+The following example showcases how a file chooser can be opened for selecting one or more files.
+
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/rymdport/portal/filechooser"
+)
+
+func main() {
+	options := filechooser.OpenOptions{Multiple: true}
+	files, err := filechooser.OpenFile("", "Select files", &options)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(files)
+}
+```
+
 ## Supported Portal APIs
 
 The lsit below contains all of the portal APIs available as of 2024-03-14. Checked boxes are partially or completely implemented within this project.
