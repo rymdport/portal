@@ -14,6 +14,8 @@ func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 	result, err := apis.ReadResponse(conn, call)
 	if err != nil {
 		return nil, err
+	} else if result == nil {
+		return nil, nil // Cancelled by the user.
 	}
 
 	uris, ok := result["uris"].Value().([]string)
