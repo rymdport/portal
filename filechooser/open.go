@@ -3,7 +3,10 @@ package filechooser
 import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/convert"
 )
+
+const openFileCallName = fileChooserCallName + ".OpenFile"
 
 // OpenFileOptions contains the options for how files are to be selected.
 type OpenFileOptions struct {
@@ -33,12 +36,11 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 	}
 
 	if options.CurrentFolder != "" {
-		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
-		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
+		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
-	call := obj.Call(fileChooserCallName+".OpenFile", 0, parentWindow, title, data)
+	call := obj.Call(openFileCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err
 	}

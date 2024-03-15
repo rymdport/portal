@@ -3,6 +3,12 @@ package filechooser
 import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
+	"github.com/rymdport/portal/internal/convert"
+)
+
+const (
+	saveFileCallName  = fileChooserCallName + ".SaveFile"
+	saveFilesCallName = fileChooserCallName + ".SaveFiles"
 )
 
 // SaveFileOptions contains the options for how a file is saved.
@@ -26,7 +32,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 	}
 
 	if options.AcceptLabel != "" {
-		data["accept_label"] = dbus.MakeVariant("") // dbus.MakeVariant(options.AcceptLabel)
+		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
 	}
 
 	if options.CurrentName != "" {
@@ -34,12 +40,11 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 	}
 
 	if options.CurrentFolder != "" {
-		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
-		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
+		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
-	call := obj.Call(fileChooserCallName+".SaveFile", 0, parentWindow, title, data)
+	call := obj.Call(saveFileCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err
 	}
@@ -71,12 +76,11 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 	}
 
 	if options.CurrentFolder != "" {
-		nullTerminatedByteString := []byte(options.CurrentFolder + "\000")
-		data["current_folder"] = dbus.MakeVariant(nullTerminatedByteString)
+		data["current_folder"] = convert.ToNullTerminatedString(options.CurrentFolder)
 	}
 
 	obj := conn.Object(portal.ObjectName, portal.ObjectPath)
-	call := obj.Call(fileChooserCallName+".SaveFiles", 0, parentWindow, title, data)
+	call := obj.Call(saveFilesCallName, 0, parentWindow, title, data)
 	if call.Err != nil {
 		return nil, call.Err
 	}
