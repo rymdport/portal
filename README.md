@@ -1,4 +1,5 @@
 [![Go API Reference](https://img.shields.io/badge/go-documentation-blue.svg?style=flat)](https://pkg.go.dev/github.com/rymdport/portal)
+[![Tests](https://github.com/rymdport/portal/actions/workflows/tests.yml/badge.svg)](https://github.com/rymdport/portal/actions/workflows/tests.yml)
 [![Analysis](https://github.com/rymdport/portal/actions/workflows/analysis.yml/badge.svg)](https://github.com/rymdport/portal/actions/workflows/analysis.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rymdport/portal)](https://goreportcard.com/report/github.com/rymdport/portal)
 
