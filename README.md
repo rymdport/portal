@@ -92,7 +92,8 @@ The list below contains all of the portal APIs available as of 2024-03-14. Check
 
 This section is meant as a reference to where this project is being used. Feel free to add yours if desired.
 
-- As of the [v2.5.0](https://github.com/fyne-io/fyne/releases/tag/v2.5.0) release of [Fyne](https://fyne.io), this project is used when compiling with `-tags flatpak`. Parts of this projects might be used by default in the future. 
+- This project is used as of the [v2.5.0](https://github.com/fyne-io/fyne/releases/tag/v2.5.0) release of [Fyne](https://fyne.io).
+  - All the old theme watching code has been replaced by the `settings` package (and `appearance` subpackage) from this module. The `filechooser` and `notification` packages replace the old Fyne-code when compiling with `-tags flatpak`.
 
 ## Contributing
 
