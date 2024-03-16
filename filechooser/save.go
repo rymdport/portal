@@ -28,24 +28,28 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 		return nil, err
 	}
 
-	data := map[string]dbus.Variant{
-		"modal": dbus.MakeVariant(!options.NotModal),
-	}
+	data := map[string]dbus.Variant{}
 
-	if options.HandleToken != "" {
-		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
-	}
+	if options != nil {
+		data = map[string]dbus.Variant{
+			"modal": dbus.MakeVariant(!options.NotModal),
+		}
 
-	if options.AcceptLabel != "" {
-		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
-	}
+		if options.HandleToken != "" {
+			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+		}
 
-	if options.CurrentName != "" {
-		data["current_name"] = dbus.MakeVariant(options.CurrentName)
-	}
+		if options.AcceptLabel != "" {
+			data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+		}
 
-	if options.CurrentFolder != "" {
-		data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		if options.CurrentName != "" {
+			data["current_name"] = dbus.MakeVariant(options.CurrentName)
+		}
+
+		if options.CurrentFolder != "" {
+			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		}
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
@@ -73,20 +77,24 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 		return nil, err
 	}
 
-	data := map[string]dbus.Variant{
-		"modal": dbus.MakeVariant(!options.NotModal),
-	}
+	data := map[string]dbus.Variant{}
 
-	if options.HandleToken != "" {
-		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
-	}
+	if options != nil {
+		data = map[string]dbus.Variant{
+			"modal": dbus.MakeVariant(!options.NotModal),
+		}
 
-	if options.AcceptLabel != "" {
-		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
-	}
+		if options.HandleToken != "" {
+			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+		}
 
-	if options.CurrentFolder != "" {
-		data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		if options.AcceptLabel != "" {
+			data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+		}
+
+		if options.CurrentFolder != "" {
+			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		}
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)

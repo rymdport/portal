@@ -26,13 +26,17 @@ func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
 		return err
 	}
 
-	data := map[string]dbus.Variant{
-		"writable": dbus.MakeVariant(options.Writeable),
-		"ask":      dbus.MakeVariant(options.Ask),
-	}
+	data := map[string]dbus.Variant{}
 
-	if options.HandleToken != "" {
-		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+	if options != nil {
+		data = map[string]dbus.Variant{
+			"writable": dbus.MakeVariant(options.Writeable),
+			"ask":      dbus.MakeVariant(options.Ask),
+		}
+
+		if options.HandleToken != "" {
+			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+		}
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)

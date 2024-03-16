@@ -26,22 +26,26 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		return nil, err
 	}
 
-	data := map[string]dbus.Variant{
-		"modal":     dbus.MakeVariant(!options.NotModal),
-		"multiple":  dbus.MakeVariant(options.Multiple),
-		"directory": dbus.MakeVariant(options.Directory),
-	}
+	data := map[string]dbus.Variant{}
 
-	if options.HandleToken != "" {
-		data["handle_token"] = dbus.MakeVariant(options.HandleToken)
-	}
+	if options != nil {
+		data = map[string]dbus.Variant{
+			"modal":     dbus.MakeVariant(!options.NotModal),
+			"multiple":  dbus.MakeVariant(options.Multiple),
+			"directory": dbus.MakeVariant(options.Directory),
+		}
 
-	if options.AcceptLabel != "" {
-		data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
-	}
+		if options.HandleToken != "" {
+			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+		}
 
-	if options.CurrentFolder != "" {
-		data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		if options.AcceptLabel != "" {
+			data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+		}
+
+		if options.CurrentFolder != "" {
+			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+		}
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
