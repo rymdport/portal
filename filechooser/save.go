@@ -48,7 +48,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 		}
 
 		if options.CurrentFolder != "" {
-			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+			data["current_folder"] = convert.ToNullTerminated(options.CurrentFolder)
 		}
 	}
 
@@ -93,7 +93,7 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 		}
 
 		if options.CurrentFolder != "" {
-			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+			data["current_folder"] = convert.ToNullTerminated(options.CurrentFolder)
 		}
 	}
 

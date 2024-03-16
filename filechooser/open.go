@@ -44,7 +44,7 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		}
 
 		if options.CurrentFolder != "" {
-			data["current_folder"] = dbus.MakeVariant(convert.ToNullTerminated(options.CurrentFolder))
+			data["current_folder"] = convert.ToNullTerminated(options.CurrentFolder)
 		}
 	}
 

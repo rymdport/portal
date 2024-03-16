@@ -1,28 +1,27 @@
 package convert
 
 import (
-	"bytes"
 	"testing"
+
+	"github.com/godbus/dbus/v5"
 )
 
 func TestToNullTerminated(t *testing.T) {
 	input := "test"
 
-	got := ToNullTerminated(input)
-	expect := []byte{'t', 'e', 's', 't', '\000'}
-	if !bytes.Equal(got, expect) {
-		t.Fatalf("Got %v, expected %v", got, expect)
+	actual := ToNullTerminated(input)
+	expect := dbus.MakeVariant([]byte{'t', 'e', 's', 't', '\000'})
+	if actual.Signature() != expect.Signature() {
+		t.Fatalf("Expected %v, got %v", expect, actual)
 	}
 }
 
-var benchResult []byte
-
 func BenchmarkToNullTerminated(b *testing.B) {
-	var result []byte
+	var variant dbus.Variant
 
 	for i := 0; i < b.N; i++ {
-		result = ToNullTerminated("long_input_string")
+		variant = ToNullTerminated("long_input_string")
 	}
 
-	benchResult = result
+	benchVariant = variant
 }
