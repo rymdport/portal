@@ -2,7 +2,6 @@ package settings
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 )
 
@@ -33,15 +32,20 @@ func OnSignalSettingChanged(callback func(changed Changed)) error {
 	conn.Signal(dbusChan)
 
 	for sig := range dbusChan {
-		if len(sig.Body) != 3 {
-			return portal.ErrUnexpectedResponse
+		if len(sig.Body) == 0 {
+			continue
 		}
 
-		callback(Changed{
-			Namespace: sig.Body[0].(string),
-			Key:       sig.Body[1].(string),
-			Value:     sig.Body[2],
-		})
+		changed := Changed{Namespace: sig.Body[0].(string)}
+		if len(sig.Body) > 1 {
+			changed.Key = sig.Body[1].(string)
+		}
+
+		if len(sig.Body) > 2 {
+			changed.Value = sig.Body[2]
+		}
+
+		callback(changed)
 	}
 
 	return nil
