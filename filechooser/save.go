@@ -32,7 +32,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 
 	if options != nil {
 		data = map[string]dbus.Variant{
-			"modal": dbus.MakeVariant(!options.NotModal),
+			"modal": convert.FromBool(!options.NotModal),
 		}
 
 		if options.HandleToken != "" {
@@ -81,7 +81,7 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 
 	if options != nil {
 		data = map[string]dbus.Variant{
-			"modal": dbus.MakeVariant(!options.NotModal),
+			"modal": convert.FromBool(!options.NotModal),
 		}
 
 		if options.HandleToken != "" {

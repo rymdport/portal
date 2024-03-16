@@ -30,9 +30,9 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 
 	if options != nil {
 		data = map[string]dbus.Variant{
-			"modal":     dbus.MakeVariant(!options.NotModal),
-			"multiple":  dbus.MakeVariant(options.Multiple),
-			"directory": dbus.MakeVariant(options.Directory),
+			"modal":     convert.FromBool(!options.NotModal),
+			"multiple":  convert.FromBool(options.Multiple),
+			"directory": convert.FromBool(options.Directory),
 		}
 
 		if options.HandleToken != "" {
