@@ -49,7 +49,7 @@ func Add(id uint, content Content) error {
 
 	// Only add the priority field when it is set.
 	if content.Priority != "" {
-		data["priority"] = dbus.MakeVariant(content.Priority)
+		data["priority"] = convert.FromString(content.Priority)
 	}
 
 	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
