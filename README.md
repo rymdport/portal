@@ -44,7 +44,7 @@ func main() {
 
 The lsit below contains all of the portal APIs available as of 2024-03-14. Checked boxes are partially or completely implemented within this project.
 
-- [ ] Account
+- [x] Account
 - [ ] Background
 - [ ] Camera
 - [ ] Clipboard
