@@ -36,11 +36,11 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		}
 
 		if options.HandleToken != "" {
-			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+			data["handle_token"] = convert.FromString(options.HandleToken)
 		}
 
 		if options.AcceptLabel != "" {
-			data["accept_label"] = dbus.MakeVariant(options.AcceptLabel)
+			data["accept_label"] = convert.FromString(options.AcceptLabel)
 		}
 
 		if options.CurrentFolder != "" {

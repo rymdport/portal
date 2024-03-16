@@ -7,6 +7,7 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 const (
@@ -34,16 +35,16 @@ type Content struct {
 }
 
 // Add sends a notification using org.freedesktop.portal.Notification.Add.
-func Add(id uint, content *Content) error {
+func Add(id uint, content Content) error {
 	bus, err := dbus.SessionBus() // shared connection, don't close.
 	if err != nil {
 		return err
 	}
 
 	data := map[string]dbus.Variant{
-		"title": dbus.MakeVariant(content.Title),
-		"body":  dbus.MakeVariant(content.Body),
-		"icon":  dbus.MakeVariant(content.Icon),
+		"title": convert.FromString(content.Title),
+		"body":  convert.FromString(content.Body),
+		"icon":  convert.FromString(content.Icon),
 	}
 
 	// Only add the priority field when it is set.

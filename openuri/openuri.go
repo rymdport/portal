@@ -5,6 +5,7 @@ package openuri
 import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 const (
@@ -30,12 +31,12 @@ func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
 
 	if options != nil {
 		data = map[string]dbus.Variant{
-			"writable": dbus.MakeVariant(options.Writeable),
-			"ask":      dbus.MakeVariant(options.Ask),
+			"writable": convert.FromBool(options.Writeable),
+			"ask":      convert.FromBool(options.Ask),
 		}
 
 		if options.HandleToken != "" {
-			data["handle_token"] = dbus.MakeVariant(options.HandleToken)
+			data["handle_token"] = convert.FromString(options.HandleToken)
 		}
 	}
 
