@@ -55,7 +55,7 @@ func main() {
 The list below contains all of the portal APIs available as of 2024-03-14. Checked boxes are partially or completely implemented within this project.
 
 - [x] Account
-- [ ] Background
+- [x] Background
 - [ ] Camera
 - [ ] Clipboard
 - [ ] Device
