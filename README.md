@@ -5,7 +5,7 @@
 
 # Portal
 
-Portal is a Go wrapper around the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) DBUS API.
+Portal is a Go wrapper around the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) D-Bus API.
 This allows the code to request information from the user through the help of the desktop environment even when running inside a sandbox like Flatpak.  
 As such, it is possible to easily open file dialogs, links and send notifications to the user in a way that integrates well with the desktop environment.
 
@@ -16,12 +16,12 @@ The goal of this project is to be a toolkit agnostic package for accessing these
 
 ## API
 
-The api of this Go module is designed to closely follow the structure naming of the upstream APIs. This means, in practice, that each DBUS interface is implemented as its own package here.
+The api of this Go module is designed to closely follow the structure naming of the upstream APIs. This means, in practice, that each D-Bus interface is implemented as its own package here.
 As such, it is also very useful to look at the API Reference for the protocol: https://flatpak.github.io/xdg-desktop-portal/docs/api-reference.html
 
 Documentation for this module and all of its packages can be found on pkg.go.dev: https://pkg.go.dev/github.com/rymdport/portal
 
-The version of this module's API is still in a v0.X.Y state and is subject to change in the future.
+The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
 A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
 
 ## Example
@@ -100,4 +100,4 @@ This section is meant as a reference to where this project is being used. Feel f
 Contributions are strongly appreciated. Everything from creating bug reports to contributing code will help the project a lot, so please feel free to help in any way, shape, or form that you feel comfortable with.
 
 ## License
-- Portal is licensed under ` Apache License Version 2.0` and will forever continue to be free and open source.
+- Portal is licensed under `Apache License Version 2.0` and will forever continue to be free and open source.
