@@ -13,13 +13,14 @@ const (
 
 // SaveFileOptions contains the options for how a file is saved.
 type SaveFileOptions struct {
-	HandleToken   string   // A string that will be used as the last element of the handle. Must be a valid object path element.
-	AcceptLabel   string   // Label for the accept button. Mnemonic underlines are allowed.
-	NotModal      bool     // Whether the dialog should not be modal.
-	Filters       []Filter // Each item specifies a single filter to offer to the user.
-	CurrentFilter *Filter  // Request that this filter be set by default at dialog creation.
-	CurrentName   string   // Suggested name of the file.
-	CurrentFolder string   // Suggested folder in which the file should be saved.
+	HandleToken   string      // A string that will be used as the last element of the handle. Must be a valid object path element.
+	AcceptLabel   string      // Label for the accept button. Mnemonic underlines are allowed.
+	NotModal      bool        // Whether the dialog should not be modal.
+	Filters       []*Filter   // Each item specifies a single filter to offer to the user.
+	CurrentFilter *Filter     // Request that this filter be set by default at dialog creation.
+	Choices       []*ComboBox // List of serialized combo boxes to add to the file chooser.
+	CurrentFolder string      // Suggested folder in which the file should be saved.
+	CurrentName   string      // Suggested name of the file.
 }
 
 // SaveFile opens a filechooser for selecting where to save a file.
@@ -53,6 +54,10 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 			data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
 		}
 
+		if len(options.Choices) > 0 {
+			data["choices"] = dbus.MakeVariant(options.Choices)
+		}
+
 		if options.CurrentName != "" {
 			data["current_name"] = convert.FromString(options.CurrentName)
 		}
@@ -73,12 +78,13 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 
 // SaveFilesOptions contains the options for how files are saved.
 type SaveFilesOptions struct {
-	HandleToken   string   // A string that will be used as the last element of the handle. Must be a valid object path element.
-	AcceptLabel   string   // Label for the accept button. Mnemonic underlines are allowed.
-	NotModal      bool     // Whether the dialog should be modal.
-	Filters       []Filter // Each item specifies a single filter to offer to the user.
-	CurrentFilter *Filter  // Request that this filter be set by default at dialog creation.
-	CurrentFolder string   // Suggested folder in which the file should be saved.
+	HandleToken   string      // A string that will be used as the last element of the handle. Must be a valid object path element.
+	AcceptLabel   string      // Label for the accept button. Mnemonic underlines are allowed.
+	NotModal      bool        // Whether the dialog should be modal.
+	Filters       []*Filter   // Each item specifies a single filter to offer to the user.
+	CurrentFilter *Filter     // Request that this filter be set by default at dialog creation.
+	Choices       []*ComboBox // List of serialized combo boxes to add to the file chooser.
+	CurrentFolder string      // Suggested folder in which the file should be saved.
 }
 
 // SaveFiles opens a filechooser for selecting where to save one or more files.
@@ -110,6 +116,10 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 
 		if options.CurrentFilter != nil {
 			data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
+		}
+
+		if len(options.Choices) > 0 {
+			data["choices"] = dbus.MakeVariant(options.Choices)
 		}
 
 		if options.CurrentFolder != "" {
