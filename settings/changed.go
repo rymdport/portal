@@ -36,9 +36,20 @@ func OnSignalSettingChanged(callback func(changed Changed)) error {
 			continue
 		}
 
-		changed := Changed{Namespace: sig.Body[0].(string)}
+		namespace, ok := sig.Body[0].(string)
+		if !ok {
+			continue // We sometimes get responses from other portals.
+		}
+
+		changed := Changed{Namespace: namespace}
+
 		if len(sig.Body) > 1 {
-			changed.Key = sig.Body[1].(string)
+			key, ok := sig.Body[1].(string)
+			if !ok {
+				continue // Avoid crashing if the response is unexpected.
+			}
+
+			changed.Key = key
 		}
 
 		if len(sig.Body) > 2 {
