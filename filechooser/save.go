@@ -63,7 +63,7 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 		}
 
 		if options.CurrentFolder != "" {
-			data["current_folder"] = convert.ToNullTerminated(options.CurrentFolder)
+			data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
 		}
 	}
 
@@ -81,10 +81,9 @@ type SaveFilesOptions struct {
 	HandleToken   string      // A string that will be used as the last element of the handle. Must be a valid object path element.
 	AcceptLabel   string      // Label for the accept button. Mnemonic underlines are allowed.
 	NotModal      bool        // Whether the dialog should be modal.
-	Filters       []*Filter   // Each item specifies a single filter to offer to the user.
-	CurrentFilter *Filter     // Request that this filter be set by default at dialog creation.
 	Choices       []*ComboBox // List of serialized combo boxes to add to the file chooser.
 	CurrentFolder string      // Suggested folder in which the file should be saved.
+	Files         []string    // An array of file names to be saved.
 }
 
 // SaveFiles opens a filechooser for selecting where to save one or more files.
@@ -110,20 +109,20 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 			data["accept_label"] = convert.FromString(options.AcceptLabel)
 		}
 
-		if len(options.Filters) > 0 {
-			data["filters"] = dbus.MakeVariant(options.Filters)
-		}
-
-		if options.CurrentFilter != nil {
-			data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
-		}
-
 		if len(options.Choices) > 0 {
 			data["choices"] = dbus.MakeVariant(options.Choices)
 		}
 
 		if options.CurrentFolder != "" {
-			data["current_folder"] = convert.ToNullTerminated(options.CurrentFolder)
+			data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
+		}
+
+		if len(options.Files) > 0 {
+			files := make([][]byte, len(options.Files))
+			for i, file := range options.Files {
+				files[i] = convert.FromStringToNullTerminated(file)
+			}
+			data["files"] = dbus.MakeVariant(files)
 		}
 	}
 
