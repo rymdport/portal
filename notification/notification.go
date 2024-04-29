@@ -44,7 +44,11 @@ func Add(id uint, content Content) error {
 	data := map[string]dbus.Variant{
 		"title": convert.FromString(content.Title),
 		"body":  convert.FromString(content.Body),
-		"icon":  convert.FromString(content.Icon),
+	}
+
+	// Only add the icon field when it is set
+	if content.Icon != "" {
+		data["icon"] = convert.FromString(content.Icon)
 	}
 
 	// Only add the priority field when it is set.
