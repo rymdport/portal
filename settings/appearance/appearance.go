@@ -1,4 +1,7 @@
 // Package appearance is a helper package for reading appearance settings.
 package appearance
 
-const appearanceNamespace = "org.freedesktop.appearance"
+const (
+	appearanceNamespace     = "org.freedesktop.appearance"
+	gnomeInterfaceNamespace = "org.gnome.desktop.interface"
+)
