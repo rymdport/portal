@@ -54,6 +54,10 @@ func OnSignalSettingChanged(callback func(changed Changed)) error {
 
 		if len(sig.Body) > 2 {
 			changed.Value = sig.Body[2]
+			variant, ok := changed.Value.(dbus.Variant)
+			if ok {
+				changed.Value = variant.Value()
+			}
 		}
 
 		callback(changed)
