@@ -23,7 +23,7 @@ const (
 func GetColorScheme() (ColorScheme, error) {
 	value, err := settings.ReadOne(appearanceNamespace, "color-scheme")
 	if err != nil {
-		return getGnomeInterfacePreference() // Fallback if new interface does not exist.
+		return NoPreference, err
 	}
 
 	result := value.(uint32)
@@ -73,18 +73,4 @@ func GetAccentColor() (*color.RGBA, error) {
 		B: uint8(blue),
 		A: uint8(alpha),
 	}, nil
-}
-
-func getGnomeInterfacePreference() (ColorScheme, error) {
-	value, err := settings.ReadOne(gnomeInterfaceNamespace, "color-scheme")
-	if err != nil {
-		return NoPreference, err
-	}
-
-	result := value.(string)
-	if result == "prefer-dark" {
-		return Dark, nil
-	}
-
-	return NoPreference, nil
 }
