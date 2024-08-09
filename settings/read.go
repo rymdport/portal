@@ -21,7 +21,7 @@ func ReadAll(namespaces []string) (map[string](map[string]dbus.Variant), error) 
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(readAllCallPath, 0, namespaces)
+	call := obj.Call(readAllCallPath, dbus.FlagNoAutoStart, namespaces)
 	if call.Err != nil {
 		return nil, call.Err
 	}
@@ -48,7 +48,7 @@ func read(callPath, namespace, key string) (any, error) {
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(callPath, 0, namespace, key)
+	call := obj.Call(callPath, dbus.FlagNoAutoStart, namespace, key)
 	if call.Err != nil {
 		return nil, call.Err
 	}
