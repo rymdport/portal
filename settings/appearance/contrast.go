@@ -17,7 +17,18 @@ func GetContrast() (Contrast, error) {
 		return NormalContrast, err
 	}
 
-	result := value.(uint32)
+	return ValueToContrast(value)
+}
+
+// ValueToContrast converts a read value to a Contrast type.
+// This is useful when for example parsing a value from the callback
+// in [settings.SignalOnSettingChanged] or a value from [settings.ReadOne].
+func ValueToContrast(value any) (Contrast, error) {
+	result, ok := value.(uint32)
+	if !ok {
+		return NormalContrast, ErrNotSet
+	}
+
 	if result > 1 || result > 255 {
 		result = 0 // Unknown values should be treated as 0 (no preference).
 	}

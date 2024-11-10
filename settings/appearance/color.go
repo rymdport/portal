@@ -26,12 +26,7 @@ func GetColorScheme() (ColorScheme, error) {
 		return NoPreference, err
 	}
 
-	result := value.(uint32)
-	if result > 2 || result > 255 {
-		result = 0 // Unknown values should be treated as 0 (no preference).
-	}
-
-	return ColorScheme(result), nil
+	return ValueToColorScheme(value)
 }
 
 // GetAccentColor returns the currently set accent color.
@@ -42,7 +37,34 @@ func GetAccentColor() (*color.RGBA, error) {
 		return nil, ErrNotSet
 	}
 
-	result := value.([]float64)
+	return ValueToAccentColor(value)
+}
+
+// ValueToColorScheme converts a read value to a ColorScheme type.
+// This is useful when for example parsing a value from the callback
+// in [settings.SignalOnSettingChanged] or a value from [settings.ReadOne].
+func ValueToColorScheme(value any) (ColorScheme, error) {
+	result, ok := value.(uint32)
+	if !ok {
+		return NoPreference, ErrNotSet
+	}
+
+	if result > 2 || result > 255 {
+		result = 0 // Unknown values should be treated as 0 (no preference).
+	}
+
+	return ColorScheme(result), nil
+}
+
+// ValueToAccentColor converts a read value to an accent color type.
+// This is useful when for example parsing a value from the callback
+// in [settings.SignalOnSettingChanged] or a value from [settings.ReadOne].
+func ValueToAccentColor(value any) (*color.RGBA, error) {
+	result, ok := value.([]float64)
+	if !ok {
+		return nil, ErrNotSet
+	}
+
 	if len(result) != 4 {
 		return nil, ErrNotSet
 	}
