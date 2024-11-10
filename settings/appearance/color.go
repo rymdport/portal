@@ -49,7 +49,7 @@ func ValueToColorScheme(value any) (ColorScheme, error) {
 		return NoPreference, ErrNotSet
 	}
 
-	if result > 2 || result > 255 {
+	if result > 2 {
 		result = 0 // Unknown values should be treated as 0 (no preference).
 	}
 

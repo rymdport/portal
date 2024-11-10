@@ -29,7 +29,7 @@ func ValueToContrast(value any) (Contrast, error) {
 		return NormalContrast, ErrNotSet
 	}
 
-	if result > 1 || result > 255 {
+	if result > 1 {
 		result = 0 // Unknown values should be treated as 0 (no preference).
 	}
 
