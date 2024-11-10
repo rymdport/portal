@@ -27,7 +27,7 @@ func GetColorScheme() (ColorScheme, error) {
 	}
 
 	result := value.(uint32)
-	if result > 2 {
+	if result > 2 || result > 255 {
 		result = 0 // Unknown values should be treated as 0 (no preference).
 	}
 

@@ -18,7 +18,7 @@ func GetContrast() (Contrast, error) {
 	}
 
 	result := value.(uint32)
-	if result > 1 {
+	if result > 1 || result > 255 {
 		result = 0 // Unknown values should be treated as 0 (no preference).
 	}
 
