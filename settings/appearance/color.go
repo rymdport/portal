@@ -21,7 +21,7 @@ const (
 
 // GetColorScheme returns the currently set color scheme.
 func GetColorScheme() (ColorScheme, error) {
-	value, err := settings.ReadOne(appearanceNamespace, "color-scheme")
+	value, err := settings.ReadOne(Namespace, "color-scheme")
 	if err != nil {
 		return NoPreference, err
 	}
@@ -37,7 +37,7 @@ func GetColorScheme() (ColorScheme, error) {
 // GetAccentColor returns the currently set accent color.
 // If not set, the ErrorNotSet will be returned.
 func GetAccentColor() (*color.RGBA, error) {
-	value, err := settings.ReadOne(appearanceNamespace, "accent-color")
+	value, err := settings.ReadOne(Namespace, "accent-color")
 	if err != nil {
 		return nil, ErrNotSet
 	}

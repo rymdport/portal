@@ -12,7 +12,7 @@ const (
 
 // GetContrast returns the currently set contrast setting.
 func GetContrast() (Contrast, error) {
-	value, err := settings.ReadOne(appearanceNamespace, "color-scheme")
+	value, err := settings.ReadOne(Namespace, "color-scheme")
 	if err != nil {
 		return NormalContrast, err
 	}
