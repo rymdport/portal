@@ -30,7 +30,7 @@ func ValueToContrast(value any) (Contrast, error) {
 	}
 
 	if result > 1 {
-		result = 0 // Unknown values should be treated as 0 (no preference).
+		return 0, nil // Unknown values should be treated as 0 (no preference).
 	}
 
 	return Contrast(result), nil

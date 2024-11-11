@@ -50,7 +50,7 @@ func ValueToColorScheme(value any) (ColorScheme, error) {
 	}
 
 	if result > 2 {
-		result = 0 // Unknown values should be treated as 0 (no preference).
+		return 0, nil // Unknown values should be treated as 0 (no preference).
 	}
 
 	return ColorScheme(result), nil
