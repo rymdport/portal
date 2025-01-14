@@ -85,6 +85,7 @@ The list below contains all of the portal APIs available as of 2024-03-14. Check
 - [ ] Session
 - [x] Settings
 - [ ] Trash
+- [ ] Usb
 - [ ] Wallpaper
 
 
