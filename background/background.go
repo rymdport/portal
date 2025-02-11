@@ -3,4 +3,4 @@ package background
 
 import "github.com/rymdport/portal/internal/apis"
 
-const backgroundBaseName = apis.CallBaseName + ".Background"
+const interfaceName = apis.CallBaseName + ".Background"

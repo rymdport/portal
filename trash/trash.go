@@ -3,7 +3,4 @@ package trash
 
 import "github.com/rymdport/portal/internal/apis"
 
-const (
-	trashBaseName = apis.CallBaseName + ".Trash"
-	trashCallName = trashBaseName + ".TrashFile"
-)
+const interfaceName = apis.CallBaseName + ".Trash"

@@ -7,7 +7,7 @@ import (
 	"github.com/rymdport/portal/internal/convert"
 )
 
-const requestCallName = backgroundBaseName + ".RequestBackground"
+const requestCallName = interfaceName + ".RequestBackground"
 
 // RequestOptions holds the options used for RequestBackground.
 type RequestOptions struct {

@@ -22,7 +22,7 @@ func OnSignalLowMemoryWarning(callback func(warning LowMemoryWarning)) error {
 
 	if err := conn.AddMatchSignal(
 		dbus.WithMatchObjectPath(apis.ObjectPath),
-		dbus.WithMatchInterface(memorymonitorBaseName),
+		dbus.WithMatchInterface(interfaceName),
 		dbus.WithMatchMember("LowMemoryWarning"),
 	); err != nil {
 		return err

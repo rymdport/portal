@@ -6,7 +6,7 @@ import (
 	"github.com/rymdport/portal/internal/convert"
 )
 
-const openFileCallName = openURIBaseName + ".OpenFile"
+const openFileCallName = interfaceName + ".OpenFile"
 
 // OpenFileOptions holds optional settings that can be passed to the OpenFile call.
 type OpenFileOptions struct {

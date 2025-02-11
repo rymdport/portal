@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	notificationBaseName       = apis.CallBaseName + ".Notification"
-	addNotificationCallName    = notificationBaseName + ".AddNotification"
-	removeNotificationCallName = notificationBaseName + ".RemoveNotification"
+	interfaceName              = apis.CallBaseName + ".Notification"
+	addNotificationCallName    = interfaceName + ".AddNotification"
+	removeNotificationCallName = interfaceName + ".RemoveNotification"
 )
 
 // Priority is the priroity of a notification.

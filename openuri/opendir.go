@@ -6,7 +6,7 @@ import (
 	"github.com/rymdport/portal/internal/convert"
 )
 
-const openDirCallName = openURIBaseName + ".OpenDirectory"
+const openDirCallName = interfaceName + ".OpenDirectory"
 
 // OpenDirOptions holds optional settings that can be passed to the OpenDir call.
 type OpenDirOptions struct {

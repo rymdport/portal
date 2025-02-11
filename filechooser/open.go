@@ -6,7 +6,7 @@ import (
 	"github.com/rymdport/portal/internal/convert"
 )
 
-const openFileCallName = fileChooserCallName + ".OpenFile"
+const openFileCallName = interfaceName + ".OpenFile"
 
 // OpenFileOptions contains the options for how files are to be selected.
 type OpenFileOptions struct {

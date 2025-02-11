@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	accountBaseName     = apis.CallBaseName + ".Account"
-	getUserInfoCallName = accountBaseName + ".GetUserInformation"
+	interfaceName       = apis.CallBaseName + ".Account"
+	getUserInfoCallName = interfaceName + ".GetUserInformation"
 )
 
 // UserInfoOptions holds optional settings for getting user information.

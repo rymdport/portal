@@ -5,6 +5,8 @@ import (
 	"github.com/rymdport/portal/internal/apis"
 )
 
+const trashFileCallName = interfaceName + ".TrashFile"
+
 // TrashResult is the status for sending a file to the trashcan.
 type TrashResult = uint8
 
@@ -25,7 +27,7 @@ func TrashFile(fd uintptr) (TrashResult, error) {
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(trashCallName, 0, dbus.UnixFD(fd))
+	call := obj.Call(trashFileCallName, 0, dbus.UnixFD(fd))
 	if call.Err != nil {
 		return TrashingFailed, call.Err
 	}

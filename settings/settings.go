@@ -4,4 +4,4 @@ package settings
 
 import "github.com/rymdport/portal/internal/apis"
 
-const settingsCallPath = apis.CallBaseName + ".Settings"
+const interfaceName = apis.CallBaseName + ".Settings"

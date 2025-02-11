@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	readCallPath    = settingsCallPath + ".Read"
-	readOneCallPath = settingsCallPath + ".ReadOne"
-	readAllCallPath = settingsCallPath + ".ReadAll"
+	readCallPath    = interfaceName + ".Read"
+	readOneCallPath = interfaceName + ".ReadOne"
+	readAllCallPath = interfaceName + ".ReadAll"
 )
 
 // ReadAll returns all values for the corresponding namespaces passed.

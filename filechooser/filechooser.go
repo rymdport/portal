@@ -8,7 +8,7 @@ import (
 	"github.com/rymdport/portal/internal/apis"
 )
 
-const fileChooserCallName = apis.CallBaseName + ".FileChooser"
+const interfaceName = apis.CallBaseName + ".FileChooser"
 
 func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
 	result, err := apis.ReadResponse(conn, call)

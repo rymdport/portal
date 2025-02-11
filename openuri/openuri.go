@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	openURIBaseName = apis.CallBaseName + ".OpenURI"
-	openURICallName = openURIBaseName + ".OpenURI"
+	interfaceName   = apis.CallBaseName + ".OpenURI"
+	openURICallName = interfaceName + ".OpenURI"
 )
 
 // OpenURIOptions holds optional settings that can be passed to the OpenURI call.

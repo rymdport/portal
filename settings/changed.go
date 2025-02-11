@@ -22,7 +22,7 @@ func OnSignalSettingChanged(callback func(changed Changed)) error {
 
 	if err := conn.AddMatchSignal(
 		dbus.WithMatchObjectPath(apis.ObjectPath),
-		dbus.WithMatchInterface(settingsCallPath),
+		dbus.WithMatchInterface(interfaceName),
 		dbus.WithMatchMember("SettingChanged"),
 	); err != nil {
 		return err

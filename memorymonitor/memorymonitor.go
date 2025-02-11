@@ -3,4 +3,4 @@ package memorymonitor
 
 import "github.com/rymdport/portal/internal/apis"
 
-const memorymonitorBaseName = apis.CallBaseName + ".MemoryMonitor"
+const interfaceName = apis.CallBaseName + ".MemoryMonitor"

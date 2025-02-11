@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	saveFileCallName  = fileChooserCallName + ".SaveFile"
-	saveFilesCallName = fileChooserCallName + ".SaveFiles"
+	saveFileCallName  = interfaceName + ".SaveFile"
+	saveFilesCallName = interfaceName + ".SaveFiles"
 )
 
 // SaveFileOptions contains the options for how a file is saved.
