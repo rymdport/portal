@@ -17,6 +17,6 @@ func OpenDirectory(parentWindow string, fd uintptr) error {
 	data := map[string]dbus.Variant{}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(openDirCallName, 0, parentWindow, dbus.UnixFDIndex(fd), data)
+	call := obj.Call(openDirCallName, 0, parentWindow, dbus.UnixFD(fd), data)
 	return call.Err
 }

@@ -17,6 +17,6 @@ func OpenFile(parentWindow string, fd uintptr) error {
 	data := map[string]dbus.Variant{}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(openFileCallName, 0, parentWindow, dbus.UnixFDIndex(fd), data)
+	call := obj.Call(openFileCallName, 0, parentWindow, dbus.UnixFD(fd), data)
 	return call.Err
 }
