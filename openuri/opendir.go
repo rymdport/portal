@@ -16,6 +16,7 @@ type OpenDirOptions struct {
 }
 
 // OpenDirectory asks to open the directory containing a local file in the file browser.
+// The input parameter fd should be a file descriptor like the one given from [*os.File.Fd] for example.
 func OpenDirectory(parentWindow string, fd uintptr, options *OpenDirOptions) error {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {

@@ -21,6 +21,8 @@ type OpenURIOptions struct {
 }
 
 // OpenURI opens the given URI in the corresponding application.
+// Note that file:// URIs are explicitly not supported by this method.
+// To request opening local files, use [OpenFile].
 func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {

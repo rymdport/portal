@@ -16,6 +16,7 @@ type OpenFileOptions struct {
 }
 
 // OpenFile asks to open a local file.
+// The input parameter fd should be a file descriptor like the one given from [*os.File.Fd] for example.
 func OpenFile(parentWindow string, fd uintptr, options *OpenFileOptions) error {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {

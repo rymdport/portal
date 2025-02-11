@@ -17,6 +17,7 @@ const (
 )
 
 // TrashFile sends a file to the trashcan. Applications are allowed to trash a file if they can open it in r/w mode.
+// The input parameter fd should be a file descriptor like the one given from [*os.File.Fd] for example.
 func TrashFile(fd uintptr) (TrashResult, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
