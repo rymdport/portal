@@ -17,7 +17,7 @@ func TrashFile(fd uintptr) (uint8, error) {
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
 	call := obj.Call(trashCallName, 0, dbus.UnixFDIndex(fd), data)
 	if call.Err != nil {
-		return 0, err
+		return 0, call.Err
 	}
 
 	var result uint8
