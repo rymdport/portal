@@ -23,10 +23,8 @@ func TrashFile(fd uintptr) (TrashResult, error) {
 		return 0, err
 	}
 
-	data := map[string]dbus.Variant{}
-
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(trashCallName, 0, dbus.UnixFDIndex(fd), data)
+	call := obj.Call(trashCallName, 0, dbus.UnixFD(fd))
 	if call.Err != nil {
 		return TrashingFailed, call.Err
 	}
