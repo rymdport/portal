@@ -9,4 +9,6 @@ const (
 
 	RequestInterface = "org.freedesktop.portal.Request"
 	ResponseMember   = "Response"
+
+	GetProperties = "org.freedesktop.DBus.Properties.Get"
 )
