@@ -1,5 +1,3 @@
-// Package openuri allows sandboxed applications to open URIs (e.g. a http: link to the applications homepage) under the control of the user.
-// Upstream API documentation can be found at https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.OpenURI.html.
 package openuri
 
 import (
@@ -8,22 +6,18 @@ import (
 	"github.com/rymdport/portal/internal/convert"
 )
 
-const (
-	openURIBaseName = apis.CallBaseName + ".OpenURI"
-	openURICallName = openURIBaseName + ".OpenURI"
-)
+const openDirCallName = openURIBaseName + ".OpenDirectory"
 
-// OpenURIOptions holds optional settings that can be passed to the OpenURI call.
-type OpenURIOptions struct {
+// OpenDirOptions holds optional settings that can be passed to the OpenDir call.
+type OpenDirOptions struct {
 	HandleToken string // A string that will be used as the last element of the handle. Must be a valid object path element.
 	Writable    bool   // Whether to allow the chosen application to write to the file. This key only takes effect the uri points to a local file that is exported in the document portal, and the chosen application is sandboxed itself.
 	Ask         bool   // Whether to ask the user to choose an app. If this is not passed, or false, the portal may use a default or pick the last choice.
 }
 
-// OpenURI opens the given URI in the corresponding application.
-// Note that file:// URIs are explicitly not supported by this method.
-// To request opening local files, use [OpenFile].
-func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
+// OpenDirectory asks to open the directory containing a local file in the file browser.
+// The input parameter fd should be a file descriptor like the one given from [*os.File.Fd] for example.
+func OpenDirectory(parentWindow string, fd uintptr, options *OpenDirOptions) error {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return err
@@ -43,6 +37,6 @@ func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
 	}
 
 	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(openURICallName, 0, parentWindow, uri, data)
+	call := obj.Call(openDirCallName, 0, parentWindow, dbus.UnixFD(fd), data)
 	return call.Err
 }
