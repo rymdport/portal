@@ -75,7 +75,7 @@ The list below contains all of the portal APIs available as of 2024-03-14. Check
 - [x] OpenURI
 - [x] Power Profile Monitor
 - [ ] Print
-- [ ] Proxy Resolver
+- [x] Proxy Resolver
 - [ ] Realtime
 - [ ] Remote Desktop
 - [ ] Request
