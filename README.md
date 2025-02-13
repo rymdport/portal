@@ -58,7 +58,6 @@ The list below contains all of the portal APIs available as of 2024-03-14. Check
 - [x] Background
 - [ ] Camera
 - [ ] Clipboard
-- [ ] Device
 - [ ] Documents
 - [ ] Dynamic Launcher
 - [ ] Email
