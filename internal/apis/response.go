@@ -6,7 +6,7 @@ import (
 )
 
 // ReadResponse takes the given dbus connection and tries to read the responce object.
-// This only works for dbus clals that have an associated response.
+// This only works for dbus calls that have an associated response.
 func ReadResponse(conn *dbus.Conn, call *dbus.Call) (map[string]dbus.Variant, error) {
 	var responsePath dbus.ObjectPath
 	err := call.Store(&responsePath)
