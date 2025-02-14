@@ -3,7 +3,7 @@ package apis
 import "github.com/godbus/dbus/v5"
 
 // GetProperty reads the value of the property at the interface specified.
-func GetPropery(interfaceName, property string) (any, error) {
+func GetProperty(interfaceName, property string) (any, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
 		return nil, err
