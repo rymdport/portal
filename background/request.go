@@ -2,7 +2,6 @@ package background
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
@@ -60,15 +59,7 @@ func RequestBackground(parentWindow string, options *RequestOptions) (*RequestRe
 		return nil, nil // Cancelled by user.
 	}
 
-	background, ok := results["background"].Value().(bool)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
-	autostart, ok := results["autostart"].Value().(bool)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
+	background := results["background"].Value().(bool)
+	autostart := results["autostart"].Value().(bool)
 	return &RequestResult{Background: background, Autostart: autostart}, nil
 }

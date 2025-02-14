@@ -2,7 +2,6 @@ package account
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
@@ -50,21 +49,9 @@ func GetUserInformation(parentWindow string, options *UserInfoOptions) (*UserInf
 		return nil, nil
 	}
 
-	id, ok := results["id"].Value().(string)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
-	name, ok := results["name"].Value().(string)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
-	image, ok := results["image"].Value().(string)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
+	id := results["id"].Value().(string)
+	name := results["name"].Value().(string)
+	image := results["image"].Value().(string)
 	return &UserInfoResult{
 		Id:    id,
 		Name:  name,

@@ -4,7 +4,6 @@ package filechooser
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/request"
 )
@@ -19,10 +18,6 @@ func readURIFromResponse(path dbus.ObjectPath) ([]string, error) {
 		return nil, nil
 	}
 
-	uris, ok := results["uris"].Value().([]string)
-	if !ok {
-		return nil, portal.ErrUnexpectedResponse
-	}
-
+	uris := results["uris"].Value().([]string)
 	return uris, nil
 }
