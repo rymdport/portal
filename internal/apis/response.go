@@ -5,7 +5,7 @@ import (
 	"github.com/rymdport/portal"
 )
 
-// ReadResponse takes the given dbus connection and tries to read the responce object.
+// ReadResponse takes the given dbus connection and tries to read the response object.
 // This only works for dbus calls that have an associated response.
 func ReadResponse(conn *dbus.Conn, call *dbus.Call) (map[string]dbus.Variant, error) {
 	var responsePath dbus.ObjectPath
