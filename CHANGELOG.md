@@ -1,6 +1,7 @@
 # Changelog
 
-Changes are listed below. Before v1.0.0, versions that change the minor field contain breaking changes. Patch releases still only contain fixes.
+The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
+A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
 
 ## v0.4.0
 

@@ -5,21 +5,17 @@
 
 # Portal
 
-Portal is a Go wrapper around the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) D-Bus API.
-This allows the code to request information from the user through the help of the desktop environment even when running inside a sandbox like Flatpak.  
-As such, it is possible to easily open file dialogs, links and send notifications to the user in a way that integrates well with the desktop environment.
+Portal is a Go module providing developer friendly functions for accessing the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) D-Bus API. The goal of this project is to be toolkit agnostic and allow using the portals without needing to access [libportal](https://github.com/flatpak/libportal) through CGo. 
 
-When running inside a sandbox, this runtime request of permissions allows the code to do various things without having to grant more permissions to the sandbox.
-However, the portal APIs should still also work good even when used outside of a sandboxed environment.
-
-The goal of this project is to be a toolkit agnostic package for accessing these interfaces through Go code without needing to access [libportal](https://github.com/flatpak/libportal) through CGo.
+Using the portals allow applications to request information from the user even when running inside a sandbox like Flatpak. As such, it is possible to open file dialogs, open links in the browser, send notifications and much more in a way that integrates well with the desktop environment. This also avoids needing to open up permissions in the sandbox.
 
 ## API
 
-The api of this Go module is designed to closely follow the structure naming of the upstream APIs. This means, in practice, that each D-Bus interface is implemented as its own package here.
-As such, it is also very useful to look at the API Reference for the protocol: https://flatpak.github.io/xdg-desktop-portal/docs/api-reference.html
+The api of this Go module is designed to closely follow the structure naming of the upstream APIs. This means, in practice, that each D-Bus interface is implemented as its own package here. However, care is taken to be developer friendly and integrate seamlessly with native Go types.
 
-Documentation for this module and all of its packages can be found on pkg.go.dev: https://pkg.go.dev/github.com/rymdport/portal
+- Documentation for this module and all of its packages can be found on pkg.go.dev: https://pkg.go.dev/github.com/rymdport/portal
+- Documentation for the D-Bus protocol of the portals: https://flatpak.github.io/xdg-desktop-portal/docs/api-reference.html
+
 
 The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
 A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
