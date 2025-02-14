@@ -5,6 +5,7 @@ import (
 	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
+	"github.com/rymdport/portal/internal/request"
 )
 
 const requestCallName = interfaceName + ".RequestBackground"
@@ -26,11 +27,6 @@ type RequestResult struct {
 
 // RequestBackground requests that the application is allowed to run in the background.
 func RequestBackground(parentWindow string, options *RequestOptions) (*RequestResult, error) {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return nil, err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -52,25 +48,24 @@ func RequestBackground(parentWindow string, options *RequestOptions) (*RequestRe
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(requestCallName, 0, parentWindow, data)
-	if call.Err != nil {
-		return nil, call.Err
-	}
-
-	result, err := apis.ReadResponse(conn, call)
+	result, err := apis.Call(requestCallName, parentWindow, data)
 	if err != nil {
 		return nil, err
-	} else if result == nil {
+	}
+
+	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
+	if err != nil {
+		return nil, err
+	} else if status == request.Cancelled {
 		return nil, nil // Cancelled by user.
 	}
 
-	background, ok := result["background"].Value().(bool)
+	background, ok := results["background"].Value().(bool)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}
 
-	autostart, ok := result["autostart"].Value().(bool)
+	autostart, ok := results["autostart"].Value().(bool)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}

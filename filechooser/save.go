@@ -26,11 +26,6 @@ type SaveFileOptions struct {
 // SaveFile opens a filechooser for selecting where to save a file.
 // The chooser will use the supplied title as it's name.
 func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, error) {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return nil, err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -67,13 +62,12 @@ func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, e
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(saveFileCallName, 0, parentWindow, title, data)
-	if call.Err != nil {
-		return nil, call.Err
+	result, err := apis.Call(saveFileCallName, parentWindow, title, data)
+	if err != nil {
+		return nil, err
 	}
 
-	return readURIFromResponse(conn, call)
+	return readURIFromResponse(result.(dbus.ObjectPath))
 }
 
 // SaveFilesOptions contains the options for how files are saved.
@@ -89,11 +83,6 @@ type SaveFilesOptions struct {
 // SaveFiles opens a filechooser for selecting where to save one or more files.
 // The chooser will use the supplied title as it's name.
 func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string, error) {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return nil, err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -126,11 +115,10 @@ func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string,
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(saveFilesCallName, 0, parentWindow, title, data)
-	if call.Err != nil {
-		return nil, call.Err
+	result, err := apis.Call(saveFilesCallName, parentWindow, title, data)
+	if err != nil {
+		return nil, err
 	}
 
-	return readURIFromResponse(conn, call)
+	return readURIFromResponse(result.(dbus.ObjectPath))
 }

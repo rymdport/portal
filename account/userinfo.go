@@ -5,6 +5,7 @@ import (
 	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
+	"github.com/rymdport/portal/internal/request"
 )
 
 const getUserInfoCallName = interfaceName + ".GetUserInformation"
@@ -25,11 +26,6 @@ type UserInfoResult struct {
 // GetUserInformation gets information about the current user.
 // Both return values will be nil if the user cancelled the request.
 func GetUserInformation(parentWindow string, options *UserInfoOptions) (*UserInfoResult, error) {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return nil, err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -42,33 +38,36 @@ func GetUserInformation(parentWindow string, options *UserInfoOptions) (*UserInf
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(getUserInfoCallName, 0, parentWindow, data)
-	if call.Err != nil {
-		return nil, err
-	}
-
-	result, err := apis.ReadResponse(conn, call)
+	result, err := apis.Call(getUserInfoCallName, parentWindow, data)
 	if err != nil {
 		return nil, err
-	} else if result == nil {
-		return nil, nil // Cancelled by user.
 	}
 
-	id, ok := result["id"].Value().(string)
+	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
+	if err != nil {
+		return nil, err
+	} else if status == request.Cancelled {
+		return nil, nil
+	}
+
+	id, ok := results["id"].Value().(string)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}
 
-	name, ok := result["name"].Value().(string)
+	name, ok := results["name"].Value().(string)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}
 
-	image, ok := result["image"].Value().(string)
+	image, ok := results["image"].Value().(string)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}
 
-	return &UserInfoResult{Id: id, Name: name, Image: image}, nil
+	return &UserInfoResult{
+		Id:    id,
+		Name:  name,
+		Image: image,
+	}, nil
 }

@@ -6,19 +6,20 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/request"
 )
 
 const interfaceName = apis.CallBaseName + ".FileChooser"
 
-func readURIFromResponse(conn *dbus.Conn, call *dbus.Call) ([]string, error) {
-	result, err := apis.ReadResponse(conn, call)
+func readURIFromResponse(path dbus.ObjectPath) ([]string, error) {
+	status, results, err := request.OnSignalResponse(path)
 	if err != nil {
 		return nil, err
-	} else if result == nil {
-		return nil, nil // Cancelled by the user.
+	} else if status == request.Cancelled {
+		return nil, nil
 	}
 
-	uris, ok := result["uris"].Value().([]string)
+	uris, ok := results["uris"].Value().([]string)
 	if !ok {
 		return nil, portal.ErrUnexpectedResponse
 	}

@@ -24,11 +24,6 @@ type OpenFileOptions struct {
 // OpenFile opens a filechooser for selecting a file to open.
 // The chooser will use the supplied title as it's name.
 func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, error) {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return nil, err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -63,11 +58,10 @@ func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, e
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(openFileCallName, 0, parentWindow, title, data)
-	if call.Err != nil {
-		return nil, call.Err
+	result, err := apis.Call(openFileCallName, parentWindow, title, data)
+	if err != nil {
+		return nil, err
 	}
 
-	return readURIFromResponse(conn, call)
+	return readURIFromResponse(result.(dbus.ObjectPath))
 }
