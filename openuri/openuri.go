@@ -24,11 +24,6 @@ type OpenURIOptions struct {
 // Note that file:// URIs are explicitly not supported by this method.
 // To request opening local files, use [OpenFile].
 func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return err
-	}
-
 	data := map[string]dbus.Variant{}
 
 	if options != nil {
@@ -42,7 +37,5 @@ func OpenURI(parentWindow, uri string, options *OpenURIOptions) error {
 		}
 	}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(openURICallName, 0, parentWindow, uri, data)
-	return call.Err
+	return apis.CallWithoutResult(openURICallName, parentWindow, uri, data)
 }

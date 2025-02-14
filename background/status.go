@@ -13,14 +13,7 @@ type StatusOptions struct {
 
 // SetStatus sets the status of the application running in background.
 func SetStatus(parentWindow string, options StatusOptions) error {
-	conn, err := dbus.SessionBus() // Shared connection, don't close.
-	if err != nil {
-		return err
-	}
-
 	data := map[string]dbus.Variant{"message": convert.FromString(options.Message)}
 
-	obj := conn.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(requestCallName, 0, parentWindow, data)
-	return call.Err
+	return apis.CallWithoutResult(requestCallName, parentWindow, data)
 }

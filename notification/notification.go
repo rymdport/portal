@@ -36,11 +36,6 @@ type Content struct {
 
 // Add sends a notification using org.freedesktop.portal.Notification.Add.
 func Add(id uint, content Content) error {
-	bus, err := dbus.SessionBus() // shared connection, don't close.
-	if err != nil {
-		return err
-	}
-
 	data := map[string]dbus.Variant{
 		"title": convert.FromString(content.Title),
 		"body":  convert.FromString(content.Body),
@@ -56,19 +51,10 @@ func Add(id uint, content Content) error {
 		data["priority"] = convert.FromString(content.Priority)
 	}
 
-	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(addNotificationCallName, 0, strconv.FormatUint(uint64(id), 10), data)
-	return call.Err
+	return apis.CallWithoutResult(addNotificationCallName, strconv.FormatUint(uint64(id), 10), data)
 }
 
 // Remove removes the notification with the corresponding id.
 func Remove(id uint) error {
-	bus, err := dbus.SessionBus() // shared connection, don't close.
-	if err != nil {
-		return err
-	}
-
-	obj := bus.Object(apis.ObjectName, apis.ObjectPath)
-	call := obj.Call(removeNotificationCallName, 0, strconv.FormatUint(uint64(id), 10))
-	return call.Err
+	return apis.CallWithoutResult(removeNotificationCallName, strconv.FormatUint(uint64(id), 10))
 }
