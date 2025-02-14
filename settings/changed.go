@@ -15,23 +15,12 @@ type Changed struct {
 // OnSignalSettingChanged listens for the SettingChanged signal.
 // This signal is emitted when a setting changes.
 func OnSignalSettingChanged(callback func(changed Changed)) error {
-	conn, err := dbus.SessionBus()
+	signal, err := apis.ListenOnSignal(interfaceName, "SettingChanged")
 	if err != nil {
 		return err
 	}
 
-	if err := conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(apis.ObjectPath),
-		dbus.WithMatchInterface(interfaceName),
-		dbus.WithMatchMember("SettingChanged"),
-	); err != nil {
-		return err
-	}
-
-	dbusChan := make(chan *dbus.Signal)
-	conn.Signal(dbusChan)
-
-	for sig := range dbusChan {
+	for sig := range signal {
 		if len(sig.Body) == 0 {
 			continue
 		}

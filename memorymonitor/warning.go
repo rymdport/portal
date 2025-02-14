@@ -1,7 +1,6 @@
 package memorymonitor
 
 import (
-	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 )
 
@@ -15,23 +14,12 @@ type LowMemoryWarning struct {
 // with 0 being the lowest level of memory availability warning,
 // and 255 being the highest.
 func OnSignalLowMemoryWarning(callback func(warning LowMemoryWarning)) error {
-	conn, err := dbus.SessionBus()
+	signal, err := apis.ListenOnSignal(interfaceName, "LowMemoryWarning")
 	if err != nil {
 		return err
 	}
 
-	if err := conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(apis.ObjectPath),
-		dbus.WithMatchInterface(interfaceName),
-		dbus.WithMatchMember("LowMemoryWarning"),
-	); err != nil {
-		return err
-	}
-
-	dbusChan := make(chan *dbus.Signal)
-	conn.Signal(dbusChan)
-
-	for sig := range dbusChan {
+	for sig := range signal {
 		if len(sig.Body) == 0 {
 			continue
 		}
