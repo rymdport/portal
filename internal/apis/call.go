@@ -4,13 +4,13 @@ import "github.com/godbus/dbus/v5"
 
 // CallWithoutResult works like [Call] but does not read a result.
 func CallWithoutResult(callName string, args ...any) error {
-	_, err := call(callName, args)
+	_, err := call(callName, args...)
 	return err
 }
 
 // Call calls the given call name for a portal using passed arguments and returns the output.
 func Call(callName string, args ...any) (any, error) {
-	call, err := call(callName, args)
+	call, err := call(callName, args...)
 	if err != nil {
 		return nil, err
 	}
