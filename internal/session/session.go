@@ -15,38 +15,19 @@ const (
 
 // Close closes the portal session to which this object refers and ends all related user interaction (dialogs, etc).
 func Close(path dbus.ObjectPath) error {
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return err
-	}
-
-	obj := conn.Object(apis.ObjectName, path)
-	call := obj.Call(closeCallName, 0)
-	return call.Err
+	return apis.CallOnObject(path, closeCallName)
 }
 
 // OnSignalClosed takes the given dbus connection and listens for the closed signal.
 // The signal is emitted when a session is closed.
 // The content of details is specified by the interface creating the session.
 func OnSignalClosed(path dbus.ObjectPath) (map[string]dbus.Variant, error) {
-	conn, err := dbus.SessionBus()
+	signal, err := apis.ListenOnSignal(interfaceName, closedMember)
 	if err != nil {
 		return nil, err
 	}
 
-	err = conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(path),
-		dbus.WithMatchInterface(interfaceName),
-		dbus.WithMatchMember(closedMember),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	dbusChan := make(chan *dbus.Signal)
-	conn.Signal(dbusChan)
-
-	response := <-dbusChan
+	response := <-signal
 	if len(response.Body) != 1 {
 		return nil, portal.ErrUnexpectedResponse
 	}

@@ -24,37 +24,18 @@ const (
 
 // Close closes the portal request to which this object refers and ends all related user interaction (dialogs, etc).
 func Close(path dbus.ObjectPath) error {
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return err
-	}
-
-	obj := conn.Object(apis.ObjectName, path)
-	call := obj.Call(closeCallName, 0)
-	return call.Err
+	return apis.CallOnObject(path, closeCallName)
 }
 
 // OnSignalResponse takes the given dbus connection and tries to read the response object.
 // This only works for dbus calls that have an associated response.
 func OnSignalResponse(path dbus.ObjectPath) (ResponseStatus, map[string]dbus.Variant, error) {
-	conn, err := dbus.SessionBus()
+	signal, err := apis.ListenOnSignal(interfaceName, responseMember)
 	if err != nil {
 		return Ended, nil, err
 	}
 
-	err = conn.AddMatchSignal(
-		dbus.WithMatchObjectPath(path),
-		dbus.WithMatchInterface(interfaceName),
-		dbus.WithMatchMember(responseMember),
-	)
-	if err != nil {
-		return Ended, nil, err
-	}
-
-	dbusChan := make(chan *dbus.Signal)
-	conn.Signal(dbusChan)
-
-	response := <-dbusChan
+	response := <-signal
 	if len(response.Body) != 2 {
 		return Ended, nil, portal.ErrUnexpectedResponse
 	}

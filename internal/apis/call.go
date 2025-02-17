@@ -20,6 +20,18 @@ func Call(callName string, args ...any) (any, error) {
 	return result, err
 }
 
+// CallOnObject calls the specified callName on the given object.
+func CallOnObject(path dbus.ObjectPath, callName string, args ...any) error {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		return err
+	}
+
+	obj := conn.Object(ObjectName, path)
+	call := obj.Call(callName, 0, args...)
+	return call.Err
+}
+
 func call(callName string, args ...any) (*dbus.Call, error) {
 	conn, err := dbus.SessionBus() // Shared connection, don't close.
 	if err != nil {
