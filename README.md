@@ -73,7 +73,7 @@ The list below contains all of the portal interfaces available within the projec
 - [x] Proxy Resolver
 - [ ] Realtime
 - [ ] Remote Desktop
-- [ ] Request
+- [x] Request
 - [ ] ScreenCast
 - [ ] Screenshot
 - [ ] Secret
