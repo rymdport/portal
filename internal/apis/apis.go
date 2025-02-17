@@ -7,8 +7,5 @@ const (
 
 	CallBaseName = "org.freedesktop.portal"
 
-	RequestInterface = "org.freedesktop.portal.Request"
-	ResponseMember   = "Response"
-
 	PropertiesGetName = "org.freedesktop.DBus.Properties.Get"
 )
