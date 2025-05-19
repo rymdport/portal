@@ -81,7 +81,7 @@ The list below contains all of the portal interfaces available within the projec
 - [x] Settings
 - [x] Trash
 - [ ] Usb
-- [ ] Wallpaper
+- [x] Wallpaper
 
 
 ## Used by other projects
