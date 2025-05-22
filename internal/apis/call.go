@@ -27,6 +27,10 @@ func CallOnObject(path dbus.ObjectPath, callName string, args ...any) error {
 		return err
 	}
 
+	if err = checkDbusCompatibilityWitArgs(conn, args); err != nil {
+		return err
+	}
+
 	obj := conn.Object(ObjectName, path)
 	call := obj.Call(callName, 0, args...)
 	return call.Err
@@ -38,7 +42,13 @@ func call(callName string, args ...any) (*dbus.Call, error) {
 		return nil, err
 	}
 
+	if err = checkDbusCompatibilityWitArgs(conn, args); err != nil {
+		return nil, err
+	}
+
 	obj := conn.Object(ObjectName, ObjectPath)
+
 	call := obj.Call(callName, 0, args...)
+
 	return call, call.Err
 }
