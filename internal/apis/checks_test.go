@@ -10,78 +10,76 @@ func isNegative(v int) bool {
 	return v < 0
 }
 
-func TestAnyOfIsNegativeTrue(t *testing.T) {
-	testValues := []int{5, 7, -4, 6, 8}
-	expected := true
-	result := anyOf[int](testValues, isNegative)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
+var testAnyOfWithIsNegative map[string]struct{
+	input []int
+	expected bool
+} = map[string]struct{
+	input []int
+	expected bool
+} {
+	"isPresent":
+		{
+			input: []int{5, 7, -4, 6, 8},
+			expected: true,
+		},
+	"isAbscent":
+		{
+			input: []int{5, 7, 4, 6, 8},
+			expected: false,
+		},
+	"isEmpty":
+		{
+			input: []int{},
+			expected: false,
+		},
+	"fisrt":{
+			input: 
+		[]int{-5, 7, 4, 6, 8},
+		expected: true,},
+	"last": {
+		input: []int{5, 7, 4, 6, -8},
+		expected: true,
+	},
+}
+
+func TestAnyOfIsNegative(t *testing.T) {
+	for name, test := range testAnyOfWithIsNegative {
+		t.Run(name, func (t *testing.T) {
+			t.Parallel()
+			if got, expected := anyOf[int](test.input, isNegative), test.expected; got != expected {
+				t.Errorf("anyOf[int](%q, isNegative) returned %t, expected %t", test.input, got, expected)
+			}
+		})
 	}
 }
 
-func TestAnyOfIsNegativeFalse(t *testing.T) {
-	testValues := []int{5, 7, 4, 6, 8}
-	expected := false
-	result := anyOf[int](testValues, isNegative)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
+func TestIsFD(t *testing.T) {
+	var fd dbus.UnixFD
+	var itfc  interface{}
+	tests := map[string]struct{
+		input any
+		expected bool
+	}{
+		"unixDF": {
+			input: fd,
+			expected: true,
+		},
+		"int": {
+			input: 5,
+			expected: false,
+		},
+		"interface": {
+			input: itfc,
+			expected: false,
+		},
 	}
-}
-
-func TestAnyOfIsNegativeEmpty(t *testing.T) {
-	testValues := []int{}
-	expected := false
-	result := anyOf[int](testValues, isNegative)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
-	}
-}
-
-func TestAnyOfIsNegativeFirst(t *testing.T) {
-	testValues := []int{-5, 7, 4, 6, 8}
-	expected := true
-	result := anyOf[int](testValues, isNegative)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
-	}
-}
-
-func TestAnyOfIsNegativeLast(t *testing.T) {
-	testValues := []int{5, 7, 4, 6, -8}
-	expected := true
-	result := anyOf[int](testValues, isNegative)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
-	}
-}
-
-func TestIsFDTrue(t *testing.T) {
-	var tested dbus.UnixFD
-	expected := true
-	result := isFileDescriptor(tested)
-
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
-	}
-}
-
-func TestIsFDInt(t *testing.T) {
-	var tested int
-	expected := false
-	result := isFileDescriptor(tested)
-
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
-	}
-}
-
-func TestIsFDInterface(t *testing.T) {
-	var tested interface{}
-	expected := false
-	result := isFileDescriptor(tested)
-
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
+	for name, test := range tests {
+		t.Run(name, func (t *testing.T) {
+			t.Parallel()
+			if got, expected := isFileDescriptor(test.input), test.expected; got != expected {
+				t.Errorf("isFileDescriptor(%v) returned %t, expected %t", test.input, got, expected)
+			}
+		})
 	}
 }
 
@@ -89,21 +87,25 @@ func TestAnyOfIsFDTrue(t *testing.T) {
 	var fd dbus.UnixFD
 	var i interface{}
 
-	testValues := []any{5, fd, i}
-	expected := true
-	result := anyOf[any](testValues, isFileDescriptor)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
+	tests := map[string] struct{
+		input []any
+		expected bool
+	}{
+		"oneFd": {
+			input: []any{5, fd, i},
+			expected: true,
+		},
+		"noFd": {
+			input: []any{5, -7, i},
+			expected: false,
+		},
 	}
-}
-
-func TestAnyOfIsFDFalse(t *testing.T) {
-	var i interface{}
-
-	testValues := []any{5, -7, i}
-	expected := false
-	result := anyOf[any](testValues, isFileDescriptor)
-	if expected != result {
-		t.Errorf("Expecting %v, got %v", expected, result)
+	for name, test := range tests {
+		t.Run(name, func (t *testing.T) {
+			t.Parallel()
+			if got, expected := anyOf[any](test.input, isFileDescriptor), test.expected; got != expected {
+				t.Errorf("anyOf[any](%q, isFileDescriptor) returned %t, expected %t", test.input, got, expected)
+			}
+		})
 	}
 }
