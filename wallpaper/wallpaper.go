@@ -64,5 +64,4 @@ func readStatusFromResponse(path dbus.ObjectPath) error {
 	default:
 		return errors.New("unknown status code")
 	}
-	return nil
 }
