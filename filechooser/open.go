@@ -25,13 +25,10 @@ type OpenFileOptions struct {
 // The chooser will use the supplied title as it's name.
 func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, error) {
 	data := map[string]dbus.Variant{}
-
 	if options != nil {
-		data = map[string]dbus.Variant{
-			"modal":     convert.FromBool(!options.NotModal),
-			"multiple":  convert.FromBool(options.Multiple),
-			"directory": convert.FromBool(options.Directory),
-		}
+		data["modal"] = convert.FromBool(!options.NotModal)
+		data["multiple"] = convert.FromBool(options.Multiple)
+		data["directory"] = convert.FromBool(options.Directory)
 
 		if options.HandleToken != "" {
 			data["handle_token"] = convert.FromString(options.HandleToken)

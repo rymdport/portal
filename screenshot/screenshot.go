@@ -25,13 +25,9 @@ type ScreenshotOptions struct {
 // Screenshot takes a screenshot, and returns the result path as a string.
 func Screenshot(parentWindow string, options *ScreenshotOptions) (string, error) {
 	data := map[string]dbus.Variant{}
-
 	if options != nil {
-		data = map[string]dbus.Variant{
-			"modal":       convert.FromBool(!options.NotModal),
-			"interactive": convert.FromBool(options.Interactive),
-		}
-
+		data["modal"] = convert.FromBool(!options.NotModal)
+		data["interactive"] = convert.FromBool(options.Interactive)
 		if options.HandleToken != "" {
 			data["handle_token"] = convert.FromString(options.HandleToken)
 		}

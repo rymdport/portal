@@ -27,11 +27,8 @@ type SaveFileOptions struct {
 // The chooser will use the supplied title as it's name.
 func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, error) {
 	data := map[string]dbus.Variant{}
-
 	if options != nil {
-		data = map[string]dbus.Variant{
-			"modal": convert.FromBool(!options.NotModal),
-		}
+		data["modal"] = convert.FromBool(!options.NotModal)
 
 		if options.HandleToken != "" {
 			data["handle_token"] = convert.FromString(options.HandleToken)

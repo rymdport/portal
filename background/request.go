@@ -27,12 +27,9 @@ type RequestResult struct {
 // RequestBackground requests that the application is allowed to run in the background.
 func RequestBackground(parentWindow string, options *RequestOptions) (*RequestResult, error) {
 	data := map[string]dbus.Variant{}
-
 	if options != nil {
-		data = map[string]dbus.Variant{
-			"autostart":        convert.FromBool(options.Autostart),
-			"dbus-activatable": convert.FromBool(options.DbusActivatable),
-		}
+		data["autostart"] = convert.FromBool(options.Autostart)
+		data["dbus-activatable"] = convert.FromBool(options.DbusActivatable)
 
 		if options.HandleToken != "" {
 			data["handle_token"] = convert.FromString(options.HandleToken)

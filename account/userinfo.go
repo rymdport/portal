@@ -26,7 +26,6 @@ type UserInfoResult struct {
 // Both return values will be nil if the user cancelled the request.
 func GetUserInformation(parentWindow string, options *UserInfoOptions) (*UserInfoResult, error) {
 	data := map[string]dbus.Variant{}
-
 	if options != nil {
 		if options.HandleToken != "" {
 			data["handle_token"] = convert.FromString(options.HandleToken)

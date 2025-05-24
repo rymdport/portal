@@ -11,5 +11,5 @@ func GetPowerSaverEnabled() (bool, error) {
 		return false, err
 	}
 
-	return value.(bool), err
+	return value.(bool), nil
 }
