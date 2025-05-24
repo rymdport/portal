@@ -1,7 +1,6 @@
 package screenshot
 
 import (
-	"errors"
 	"image/color"
 	"math"
 
@@ -11,8 +10,6 @@ import (
 )
 
 const pickColorCallName = interfaceName + ".PickColor"
-
-var errInvalidColor = errors.New("invalid color")
 
 // PickerOptions contains options for the color picker.
 type PickerOptions struct {
