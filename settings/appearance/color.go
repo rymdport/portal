@@ -3,6 +3,7 @@ package appearance
 import (
 	"errors"
 	"image/color"
+	"math"
 
 	"github.com/rymdport/portal/settings"
 )
@@ -61,33 +62,14 @@ func ValueToColorScheme(value any) (ColorScheme, error) {
 // in [settings.SignalOnSettingChanged] or a value from [settings.ReadOne].
 func ValueToAccentColor(value any) (*color.RGBA, error) {
 	result, ok := value.([]float64)
-	if !ok {
+	if !ok || len(result) != 4 {
 		return nil, ErrNotSet
 	}
 
-	if len(result) != 4 {
-		return nil, ErrNotSet
-	}
-
-	red := result[0] * 255
-	if red < 0 || red > 255 {
-		return nil, ErrNotSet
-	}
-
-	green := result[1] * 255
-	if green < 0 || green > 255 {
-		return nil, ErrNotSet
-	}
-
-	blue := result[2] * 255
-	if blue < 0 || blue > 255 {
-		return nil, ErrNotSet
-	}
-
-	alpha := result[3] * 255
-	if alpha < 0 || alpha > 255 {
-		return nil, ErrNotSet
-	}
+	red := math.Round(math.Max(0.0, math.Min(1.0, result[0])) * 255)
+	green := math.Round(math.Max(0.0, math.Min(1.0, result[1])) * 255)
+	blue := math.Round(math.Max(0.0, math.Min(1.0, result[2])) * 255)
+	alpha := math.Round(math.Max(0.0, math.Min(1.0, result[3])) * 255)
 
 	return &color.RGBA{
 		R: uint8(red),

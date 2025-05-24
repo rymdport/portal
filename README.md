@@ -5,7 +5,7 @@
 
 # Portal
 
-Portal is a Go module providing developer friendly functions for accessing the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) D-Bus API. The goal of this project is to be toolkit agnostic and allow using the portals without needing to access [libportal](https://github.com/flatpak/libportal) through CGo. 
+Portal is a Go module providing developer friendly functions for accessing the [XDG Desktop Protocol](https://flatpak.github.io/xdg-desktop-portal/) D-Bus API. The goal of this project is to be toolkit agnostic and allow using the portals without needing to access [libportal](https://github.com/flatpak/libportal) through CGo.
 
 Using the portals allow applications to request information from the user even when running inside a sandbox like Flatpak. As such, it is possible to open file dialogs, open links in the browser, send notifications and much more in a way that integrates well with the desktop environment. This also avoids needing to open up permissions in the sandbox.
 
@@ -75,7 +75,7 @@ The list below contains all of the portal interfaces available within the projec
 - [ ] Remote Desktop
 - [x] Request
 - [ ] ScreenCast
-- [ ] Screenshot
+- [x] Screenshot
 - [ ] Secret
 - [x] Session
 - [x] Settings

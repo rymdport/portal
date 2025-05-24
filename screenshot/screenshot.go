@@ -38,11 +38,7 @@ func Screenshot(parentWindow string, options *ScreenshotOptions) (string, error)
 		return "", err
 	}
 
-	return readURIFromResponse(result.(dbus.ObjectPath))
-}
-
-func readURIFromResponse(path dbus.ObjectPath) (string, error) {
-	status, results, err := request.OnSignalResponse(path)
+	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
 	if err != nil {
 		return "", err
 	} else if status >= request.Cancelled {
