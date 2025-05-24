@@ -15,22 +15,11 @@ const (
 	screenshotCallName = interfaceName + ".Screenshot"
 )
 
+// ScreenshotOptions represents options for taking a screenshot.
 type ScreenshotOptions struct {
 	HandleToken string // A string that will be used as the last element of the handle. Must be a valid object path element.
 	NotModal    bool   // Whether the dialog should not be modal. Default is no.
 	Interactive bool   // Hint whether the dialog should offer customization before taking a screenshot. Default is no. Since version 2.
-}
-
-func readURIFromResponse(path dbus.ObjectPath) (string, error) {
-	status, results, err := request.OnSignalResponse(path)
-	if err != nil {
-		return "", err
-	} else if status == request.Cancelled {
-		return "", nil
-	}
-
-	uri := results["uri"].Value().(string)
-	return uri, nil
 }
 
 // Screenshot takes a screenshot, and returns the result path as a string.
@@ -54,4 +43,16 @@ func Screenshot(parentWindow string, options *ScreenshotOptions) (string, error)
 	}
 
 	return readURIFromResponse(result.(dbus.ObjectPath))
+}
+
+func readURIFromResponse(path dbus.ObjectPath) (string, error) {
+	status, results, err := request.OnSignalResponse(path)
+	if err != nil {
+		return "", err
+	} else if status >= request.Cancelled {
+		return "", nil
+	}
+
+	uri := results["uri"].Value().(string)
+	return uri, nil
 }
