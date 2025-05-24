@@ -20,7 +20,7 @@ Follow the steps below to increase the chance of the changes being accepted quic
 2. Consider how to structure your code so that it is readable, clean, and can be easily tested.
 4. Write the code changes and create a new commit for your change.
 5. Run the tests and make sure everything still works as expected using `go test ./...`.
-6. Open a PR against the `next` branch for features (only bugfixes should target the `main` branch). If there is an open bug, you should add "Fixes #", followed by the issue number, on a new line.
+6. Open a PR against the `main` branch. If there is an open bug, you should add "Fixes #", followed by the issue number, on a new line.
 7. Please refrain from force pushing or squashing. This makes it easier to review, and squashing can instead be done automatically when merging.
 
 ### Code standards
@@ -31,4 +31,4 @@ To manage this, we have various checks and processes in place that everyone shou
 - For a more strict standard Go format, we use [gofumpt](https://github.com/mvdan/gofumpt).
 - Imports should be ordered in accordance with the GoImports specification. Imports should be grouped by first- and third-party packages and listed alphabetically.
 - The code should pass the code quality checks by [staticcheck](https://staticcheck.io/) and [gosec](https://github.com/securego/gosec).
-- The cyclomatic complexity of each function should be below 15. 
+- The cyclomatic complexity of each function should be below 15.
