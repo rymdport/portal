@@ -16,23 +16,13 @@ const (
 )
 
 // WallpaperLocation is the type of the parameter SetOn of wallpaper options
-type WallpaperLocation uint
+type WallpaperLocation string
 
 const (
-	Background WallpaperLocation = iota // Set wallpaper of Background
-	Lockscreen                          // Set wallpaper of Locksreen
-	Both                                // Set wallpaper of both background and lockscreen
+	Background WallpaperLocation = "background" // Set wallpaper of Background
+	Lockscreen WallpaperLocation = "lockscreen" // Set wallpaper of Locksreen
+	Both       WallpaperLocation = "both"       // Set wallpaper of both background and lockscreen
 )
-
-var wallpaperLocationName = map[WallpaperLocation]string{
-	Background: "background",
-	Lockscreen: "lockscreen",
-	Both:       "both",
-}
-
-func (l WallpaperLocation) String() string {
-	return wallpaperLocationName[l]
-}
 
 // SetWallpaperOptions contains the options of backgound change
 type SetWallpaperOptions struct {
@@ -44,7 +34,7 @@ func dbusDataFromOptions(options *SetWallpaperOptions) map[string]dbus.Variant {
 	data := map[string]dbus.Variant{}
 	if options != nil {
 		data["show-preview"] = convert.FromBool(options.ShowPreview)
-		data["set-on"] = convert.FromString(wallpaperLocationName[options.SetOn])
+		data["set-on"] = convert.FromString(string(options.SetOn))
 	}
 	return data
 }

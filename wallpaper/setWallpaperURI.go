@@ -9,7 +9,6 @@ import (
 
 // SetWallpaperURI sets wallpaper specified as an URI (not a local file)
 func SetWallpaperURI(parentWindow string, uri string, options *SetWallpaperOptions) error {
-	// Parse URI as an URL !
 	url, err := url.Parse(uri)
 	if err != nil {
 		return err
