@@ -28,7 +28,9 @@ func CallOnObject(path dbus.ObjectPath, callName string, args ...any) error {
 	}
 
 	obj := conn.Object(ObjectName, path)
+
 	call := obj.Call(callName, 0, args...)
+
 	return call.Err
 }
 
@@ -39,6 +41,8 @@ func call(callName string, args ...any) (*dbus.Call, error) {
 	}
 
 	obj := conn.Object(ObjectName, ObjectPath)
+
 	call := obj.Call(callName, 0, args...)
+
 	return call, call.Err
 }
