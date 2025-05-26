@@ -1,22 +1,15 @@
 package wallpaper
 
 import (
-	"net/url"
-
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 )
 
-// SetWallpaperURI sets wallpaper specified as an URI (not a local file)
+// SetWallpaperURI sets wallpaper specified as a URI.
 func SetWallpaperURI(parentWindow string, uri string, options *SetWallpaperOptions) error {
-	url, err := url.Parse(uri)
-	if err != nil {
-		return err
-	}
-
 	data := dbusDataFromOptions(options)
 
-	result, err := apis.Call(setWallpaperURICallName, parentWindow, url.String(), data)
+	result, err := apis.Call(setWallpaperURICallName, parentWindow, uri, data)
 	if err != nil {
 		return err
 	}

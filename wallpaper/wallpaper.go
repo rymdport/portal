@@ -1,3 +1,4 @@
+// Package wallpaper is a simple interface that lets sandboxed applications set the user’s desktop background picture.
 package wallpaper
 
 import (
@@ -15,26 +16,29 @@ const (
 	setWallpaperFileCallName = interfaceName + ".SetWallpaperFile"
 )
 
-// WallpaperLocation is the type of the parameter SetOn of wallpaper options
-type WallpaperLocation string
+// Location specifies where to set the wallpaper.
+type Location string
 
 const (
-	Background WallpaperLocation = "background" // Set wallpaper of Background
-	Lockscreen WallpaperLocation = "lockscreen" // Set wallpaper of Locksreen
-	Both       WallpaperLocation = "both"       // Set wallpaper of both background and lockscreen
+	Background Location = "background" // Set wallpaper of background
+	Lockscreen Location = "lockscreen" // Set wallpaper of lockscreen
+	Both       Location = "both"       // Set wallpaper of both background and lockscreen
 )
 
-// SetWallpaperOptions contains the options of backgound change
+// SetWallpaperOptions contains the options of the wallpaper change.
 type SetWallpaperOptions struct {
-	ShowPreview bool              // Whether to show a preview of the picture. Note that the portal may decide to show a preview even if this option is not set.
-	SetOn       WallpaperLocation // Where to set the wallpaper. Possible values are Background, Lockscreen, or Both constants
+	ShowPreview bool     // Whether to show a preview of the picture. Note that the portal may decide to show a preview even if this option is not set.
+	SetOn       Location // Where to set the wallpaper. Possible values are Background, Lockscreen, or Both constants
 }
 
 func dbusDataFromOptions(options *SetWallpaperOptions) map[string]dbus.Variant {
 	data := map[string]dbus.Variant{}
 	if options != nil {
 		data["show-preview"] = convert.FromBool(options.ShowPreview)
-		data["set-on"] = convert.FromString(string(options.SetOn))
+
+		if options.SetOn != "" {
+			data["set-on"] = convert.FromString(string(options.SetOn))
+		}
 	}
 	return data
 }
@@ -44,14 +48,10 @@ func readStatusFromResponse(path dbus.ObjectPath) error {
 	if err != nil {
 		return err
 	}
-	switch status {
-	case request.Cancelled:
-		return errors.New("operation cancelled by User")
-	case request.Ended:
+
+	if status == request.Ended {
 		return errors.New("operation cancelled by system")
-	case request.Success:
-		return nil
-	default:
-		return errors.New("unknown status code")
 	}
+
+	return nil
 }
