@@ -3,6 +3,8 @@
 package filechooser
 
 import (
+	"net/url"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/request"
@@ -19,5 +21,12 @@ func readURIFromResponse(path dbus.ObjectPath) ([]string, error) {
 	}
 
 	uris := results["uris"].Value().([]string)
+	for i, uri := range uris {
+		uris[i], err = url.QueryUnescape(uri)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return uris, nil
 }
