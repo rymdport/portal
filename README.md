@@ -20,9 +20,9 @@ The api of this Go module is designed to closely follow the structure naming of 
 The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
 A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
 
-### Window Hanldes
+### Window Handles
 
-The portal APIs often provide a `windowHandle` parameter that allows dialogs and other actions to be attached to a specific window.
+The portal APIs often provide a `windowHandle` parameter that allow dialogs and other actions to be attached to a specific window.
 
 #### From Fyne
 
