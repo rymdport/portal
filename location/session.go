@@ -30,10 +30,10 @@ func (s *Session) Close() error {
 }
 
 // SetOnClosed sets a callback to run when the session is closed by the portal.
-func (s *Session) SetOnClosed(callback func()) {
+func (s *Session) SetOnClosed(callback func(error)) {
 	go func() {
-		session.OnSignalClosed(s.path)
-		callback()
+		_, err := session.OnSignalClosed(s.path)
+		callback(err)
 	}()
 }
 
