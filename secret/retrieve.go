@@ -23,25 +23,38 @@ type RetrieveOptions struct {
 // In a typical backend implementation, it is stored in the user’s keyring,
 // under the application ID as a key.
 // The parameter fd is a writable file descriptor for transporting the secret.
-func RetrieveSecret(fd uintptr, options RetrieveOptions) error {
-	data := map[string]dbus.Variant{
-		"handle_token": convert.FromString(options.HandleToken),
-		"token":        convert.FromString(options.Token),
+//
+// The portal may return an additional identifier associated with the secret in the results.
+// In the next call of this method, the application shall provide a token element in options.
+func RetrieveSecret(fd uintptr, options *RetrieveOptions) (string, error) {
+	data := map[string]dbus.Variant{}
+	if options != nil {
+		if options.HandleToken != "" {
+			data["handle_token"] = convert.FromString(options.HandleToken)
+		}
+		if options.Token != "" {
+			data["token"] = convert.FromString(options.Token)
+		}
 	}
 
 	result, err := apis.Call(retrieveSecretCallName, dbus.UnixFD(fd), data)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	path := result.(dbus.ObjectPath)
 	status, results, err := request.OnSignalResponse(path)
 	if err != nil {
-		return err
+		return "", err
 	} else if status > request.Success {
-		return nil
+		return "", nil
 	}
 
-	fmt.Println("Got result:", results)
-	return nil
+	if token, ok := results["token"]; ok {
+		return token.Value().(string), nil
+	} else if len(results) != 0 {
+		fmt.Println("Please contribute this information to rymdport/portal: ", results)
+	}
+
+	return "", nil
 }
