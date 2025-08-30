@@ -20,6 +20,22 @@ The api of this Go module is designed to closely follow the structure naming of 
 The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
 A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
 
+### Window handles from Fyne
+
+With Fyne running in X11 mode it is easy to get the window handle like below. However, note that the snippet will not work with `-tags wayland`:
+
+```go
+func getWindowHandle(window fyne.Window) string {
+	windowHandle := ""
+	window.(driver.NativeWindow).RunNative(func(context any) {
+		handle := context.(driver.X11WindowContext).WindowHandle
+		windowHandle = portal.FormatX11WindowHandle(handle)
+	})
+
+	return windowHandle
+}
+```
+
 ## Example
 
 The following example showcases how a file chooser can be opened for selecting one or more files.
