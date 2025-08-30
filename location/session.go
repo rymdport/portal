@@ -1,10 +1,9 @@
 package location
 
 import (
-	"fmt"
-
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 	"github.com/rymdport/portal/internal/session"
 )
@@ -13,6 +12,11 @@ const (
 	startCallName         = interfaceName + ".Start"
 	locationUpdatedMember = "LocationUpdated"
 )
+
+// StartOptions represents options used when starting a location session.
+type StartOptions struct {
+	HandleToken string
+}
 
 // Session is the value for a created location session.
 // The zero value is not usable.
@@ -46,20 +50,20 @@ func (s *Session) SetOnLocationUpdated(callback func(Location)) error {
 				continue
 			}
 
-			handle := trigger.Body[0].(dbus.ObjectPath)
-			location := trigger.Body[1].(map[string]any)
-			if handle != s.path {
+			if path, ok := trigger.Body[0].(dbus.ObjectPath); !ok || path != s.path {
 				continue
 			}
 
+			location := trigger.Body[1].(map[string]dbus.Variant)
+			timestamp := location["Timestamp"].Value().([]any)
 			callback(Location{
-				Latitude:  location["Latitude"].(float64),
-				Longitude: location["Latitude"].(float64),
-				Altitude:  location["Altitude"].(float64),
-				Accuracy:  location["Accuracy"].(float64),
-				Speed:     location["Speed"].(float64),
-				Heading:   location["Heading"].(float64),
-				Timestamp: location["Timestamp"].([2]uint64),
+				Latitude:  location["Latitude"].Value().(float64),
+				Longitude: location["Longitude"].Value().(float64),
+				Altitude:  location["Altitude"].Value().(float64),
+				Accuracy:  location["Accuracy"].Value().(float64),
+				Speed:     location["Speed"].Value().(float64),
+				Heading:   location["Heading"].Value().(float64),
+				Timestamp: [2]uint64{timestamp[0].(uint64), timestamp[1].(uint64)},
 			})
 		}
 	}()
@@ -67,20 +71,18 @@ func (s *Session) SetOnLocationUpdated(callback func(Location)) error {
 }
 
 // Start the location session. An application can only attempt start a session once.
-func (s *Session) Start(parentWindow string) error {
-	return start(s.path, parentWindow)
-}
-
-// start starts the location session. An application can only attempt start a session once.
-func start(sessionHandle dbus.ObjectPath, parentWindow string) error {
+func (s *Session) Start(parentWindow string, options *StartOptions) error {
 	data := map[string]dbus.Variant{}
-	result, err := apis.Call(startCallName, sessionHandle, parentWindow, data)
+	if options != nil {
+		data["HandleToken"] = convert.FromString(options.HandleToken)
+	}
+
+	result, err := apis.Call(startCallName, s.path, parentWindow, data)
 	if err != nil {
 		return err
 	}
 
 	path := result.(dbus.ObjectPath)
-	status, results, err := request.OnSignalResponse(path)
-	fmt.Println(status, results)
+	_, _, err = request.OnSignalResponse(path)
 	return err
 }

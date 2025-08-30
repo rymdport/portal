@@ -2,9 +2,15 @@
 package session
 
 import (
+	"crypto/rand"
+	"math/big"
+	"strconv"
+	"strings"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 const (
@@ -16,6 +22,15 @@ const (
 // Close closes the portal session to which this object refers and ends all related user interaction (dialogs, etc).
 func Close(path dbus.ObjectPath) error {
 	return apis.CallOnObject(path, closeCallName)
+}
+
+// GenerateToken generates a random token string prefixed with "rymdportal".
+func GenerateToken() dbus.Variant {
+	str := strings.Builder{}
+	str.WriteString("rymdportal")
+	a, _ := rand.Int(rand.Reader, big.NewInt(1<<16))
+	str.WriteString(strconv.FormatUint(a.Uint64(), 16))
+	return convert.FromString(str.String())
 }
 
 // OnSignalClosed takes the given dbus connection and listens for the closed signal.

@@ -63,7 +63,7 @@ The list below contains all of the portal interfaces available within the projec
 - [ ] Global Shortcuts
 - [ ] Inhibit
 - [ ] Input Capture
-- [ ] Location
+- [x] Location
 - [x] Memory Monitor
 - [x] Network Monitor
 - [x] Notification
