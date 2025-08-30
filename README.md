@@ -20,11 +20,16 @@ The api of this Go module is designed to closely follow the structure naming of 
 The version of this module's API is still in a `v0.X.Y` state and is subject to change in the future.
 A release with breaking changes will increment X while Y will be incremented when there are minor bug or feature improvements.
 
-### Window handles from Fyne
+### Window Hanldes
 
-With Fyne running in X11 mode it is easy to get the window handle like below. However, note that the snippet will not work with `-tags wayland`:
+The portal APIs often provide a `windowHandle` parameter that allows dialogs and other actions to be attached to a specific window.
+
+#### From Fyne
+
+With Fyne running in X11 mode it is easy to get the window handle like below. However, note that the snippet will not work with `-tags wayland`.
 
 ```go
+// based on https://github.com/fyne-io/fyne/blob/19dcdbdb5f5a9b293a21a29b5235c163345b36d0/dialog/file_xdg_flatpak.go#L124
 func getWindowHandle(window fyne.Window) string {
 	windowHandle := ""
 	window.(driver.NativeWindow).RunNative(func(context any) {
