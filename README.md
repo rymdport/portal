@@ -76,7 +76,7 @@ The list below contains all of the portal interfaces available within the projec
 - [x] Request
 - [ ] ScreenCast
 - [x] Screenshot
-- [ ] Secret
+- [x] Secret
 - [x] Session
 - [x] Settings
 - [x] Trash
