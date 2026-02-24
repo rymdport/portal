@@ -39,7 +39,7 @@ func (s *Session) SetOnClosed(callback func(error)) {
 
 // SetOnLocationUpdated sets a callback to run when the location changes.
 func (s *Session) SetOnLocationUpdated(callback func(Location)) error {
-	signal, err := apis.ListenOnSignal(interfaceName, locationUpdatedMember)
+	signal, err := apis.ListenOnSignalAt(s.path, interfaceName, locationUpdatedMember)
 	if err != nil {
 		return err
 	}
