@@ -28,10 +28,11 @@ const (
 
 // Content holds the content to send with the notification.
 type Content struct {
-	Title    string   // User-visible string to display as the title.
-	Body     string   // User-visible string to display as the body.
-	Icon     string   // Serialized icon or name of application icon.
-	Priority Priority // The priority for the notification.
+	Title      string   // User-visible string to display as the title.
+	Body       string   // User-visible string to display as the body.
+	MarkupBody string   // The same as body but with support for markup formatting. The markup is XML-based and supports a small subset of HTML <b>...</b>, <i>...</i> and <a href="...">...</a>.
+	Icon       string   // Serialized icon or name of application icon.
+	Priority   Priority // The priority for the notification.
 }
 
 // Add sends a notification using org.freedesktop.portal.Notification.Add.
