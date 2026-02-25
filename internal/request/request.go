@@ -30,17 +30,23 @@ func Close(path dbus.ObjectPath) error {
 // OnSignalResponse takes the given dbus connection and tries to read the response object.
 // This only works for dbus calls that have an associated response.
 func OnSignalResponse(path dbus.ObjectPath) (ResponseStatus, map[string]dbus.Variant, error) {
-	signal, err := apis.ListenOnSignal(interfaceName, responseMember)
+	signal, err := apis.ListenOnSignalAt(path, interfaceName, responseMember)
 	if err != nil {
 		return Ended, nil, err
 	}
 
-	response := <-signal
-	if len(response.Body) != 2 {
-		return Ended, nil, portal.ErrUnexpectedResponse
+	for response := range signal {
+		if response.Path != path {
+			continue
+		}
+		if len(response.Body) != 2 {
+			return Ended, nil, portal.ErrUnexpectedResponse
+		}
+
+		status := response.Body[0].(ResponseStatus)
+		results := response.Body[1].(map[string]dbus.Variant)
+		return status, results, nil
 	}
 
-	status := response.Body[0].(ResponseStatus)
-	results := response.Body[1].(map[string]dbus.Variant)
-	return status, results, nil
+	return Ended, nil, portal.ErrUnexpectedResponse
 }
