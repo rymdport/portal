@@ -27,6 +27,11 @@ type RetrieveOptions struct {
 // The portal may return an additional identifier associated with the secret in the results.
 // In the next call of this method, the application shall provide a token element in options.
 func RetrieveSecret(fd uintptr, options *RetrieveOptions) (string, error) {
+	unixFD, err := convert.UintptrToUnixFD(fd)
+	if err != nil {
+		return "", err
+	}
+
 	data := map[string]dbus.Variant{}
 	if options != nil {
 		if options.HandleToken != "" {
@@ -37,7 +42,7 @@ func RetrieveSecret(fd uintptr, options *RetrieveOptions) (string, error) {
 		}
 	}
 
-	result, err := apis.Call(retrieveSecretCallName, dbus.UnixFD(fd), data)
+	result, err := apis.Call(retrieveSecretCallName, unixFD, data)
 	if err != nil {
 		return "", err
 	}

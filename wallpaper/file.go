@@ -3,13 +3,18 @@ package wallpaper
 import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 // SetWallpaperFile sets wallpaper specified as a local file.
 func SetWallpaperFile(parentWindow string, fd uintptr, options *SetWallpaperOptions) error {
-	data := dbusDataFromOptions(options)
+	unixFD, err := convert.UintptrToUnixFD(fd)
+	if err != nil {
+		return err
+	}
 
-	result, err := apis.Call(setWallpaperFileCallName, parentWindow, dbus.UnixFD(fd), data)
+	data := dbusDataFromOptions(options)
+	result, err := apis.Call(setWallpaperFileCallName, parentWindow, unixFD, data)
 	if err != nil {
 		return err
 	}

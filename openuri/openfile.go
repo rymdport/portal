@@ -1,8 +1,8 @@
 package openuri
 
 import (
-	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 const openFileCallName = interfaceName + ".OpenFile"
@@ -15,6 +15,11 @@ type OpenFileOptions = Options
 // OpenFile asks to open a local file.
 // The input parameter fd should be a file descriptor like the one given from [*os.File.Fd] for example.
 func OpenFile(parentWindow string, fd uintptr, options *Options) error {
+	unixFD, err := convert.UintptrToUnixFD(fd)
+	if err != nil {
+		return err
+	}
+
 	data := readDataFromOptions(options)
-	return apis.CallWithoutResult(openFileCallName, parentWindow, dbus.UnixFD(fd), data)
+	return apis.CallWithoutResult(openFileCallName, parentWindow, unixFD, data)
 }
