@@ -5,6 +5,7 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 )
 
 const finishAcquireDevicesCallName = interfaceName + ".FinishAcquireDevices"
@@ -54,8 +55,10 @@ func FinishAcquireDevices(handle dbus.ObjectPath) (*FinishAcquireDevicesResult, 
 			r.Success = v.Value().(bool)
 		}
 		if v, ok := info["fd"]; ok {
-			fd := v.Value().(dbus.UnixFD)
-			r.File = os.NewFile(uintptr(fd), id)
+			fd, err := convert.UnixFDToUintptr(v.Value().(dbus.UnixFD))
+			if err == nil {
+				r.File = os.NewFile(fd, id)
+			}
 		}
 		if v, ok := info["error"]; ok {
 			r.Error = v.Value().(string)
