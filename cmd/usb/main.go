@@ -76,7 +76,44 @@ func main() {
 			panic(err)
 		}
 
+	case "monitor":
+		sess, err := usb.CreateSession()
+		if err != nil {
+			panic(err)
+		}
+		defer sess.Close()
+
+		done := make(chan struct{})
+		sess.SetOnClosed(func(err error) {
+			if err != nil {
+				panic(err)
+			}
+			close(done)
+		})
+
+		if err := sess.SetOnDeviceEvents(func(events []usb.DeviceEvent) {
+			for _, ev := range events {
+				if err := enc.Encode(map[string]any{
+					"Action": ev.Action,
+					"ID":     ev.ID,
+					"Device": maps.Collect(func(yield func(string, any) bool) {
+						for k, v := range ev.Device {
+							if !yield(k, v.Value()) {
+								return
+							}
+						}
+					}),
+				}); err != nil {
+					panic(err)
+				}
+			}
+		}); err != nil {
+			panic(err)
+		}
+
+		<-done
+
 	default:
-		panic("unknown command: " + flag.Arg(0) + " (expected: enumerate, acquire, release)")
+		panic("unknown command: " + flag.Arg(0) + " (expected: enumerate, acquire, release, monitor)")
 	}
 }
