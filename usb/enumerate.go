@@ -24,9 +24,9 @@ type Device struct {
 
 // EnumerateDevices enumerates all connected USB devices that this application has permission to see.
 func EnumerateDevices() ([]Device, error) {
-	options := map[string]dbus.Variant{}
+	data := map[string]dbus.Variant{}
 
-	result, err := apis.Call(enumerateDevicesCallName, options)
+	result, err := apis.Call(enumerateDevicesCallName, data)
 	if err != nil {
 		return nil, err
 	}
