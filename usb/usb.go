@@ -1,4 +1,4 @@
-// Package usb provides access to USB devices through the portal.
+// Package usb lets sandboxed applications monitor and request access to connected USB devices.
 // Upstream API documentation can be found at https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.Usb.html.
 package usb
 
