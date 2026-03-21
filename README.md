@@ -101,7 +101,7 @@ The list below contains all of the portal interfaces available within the projec
 - [x] Session
 - [x] Settings
 - [x] Trash
-- [ ] Usb
+- [x] Usb
 - [x] Wallpaper
 
 
