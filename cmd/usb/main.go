@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"maps"
 	"os"
 
 	"github.com/rymdport/portal/usb"
@@ -42,19 +41,18 @@ func enumerate(enc *json.Encoder) {
 	}
 
 	for _, dev := range devices {
+		props := make(map[string]any, len(dev.Properties))
+		for k, v := range dev.Properties {
+			props[k] = v.Value()
+		}
+
 		if err := enc.Encode(map[string]any{
 			"ID":         dev.ID,
 			"Parent":     dev.Parent,
 			"Readable":   dev.Readable,
 			"Writable":   dev.Writable,
 			"DeviceFile": dev.DeviceFile,
-			"Properties": maps.Collect(func(yield func(string, any) bool) {
-				for k, v := range dev.Properties {
-					if !yield(k, v.Value()) {
-						return
-					}
-				}
-			}),
+			"Properties": props,
 		}); err != nil {
 			panic(err)
 		}
@@ -113,16 +111,15 @@ func monitor(enc *json.Encoder) {
 
 	if err := sess.SetOnDeviceEvents(func(events []usb.DeviceEvent) {
 		for _, ev := range events {
+			device := make(map[string]any, len(ev.Device))
+			for k, v := range ev.Device {
+				device[k] = v.Value()
+			}
+
 			if err := enc.Encode(map[string]any{
 				"Action": ev.Action,
 				"ID":     ev.ID,
-				"Device": maps.Collect(func(yield func(string, any) bool) {
-					for k, v := range ev.Device {
-						if !yield(k, v.Value()) {
-							return
-						}
-					}
-				}),
+				"Device": device,
 			}); err != nil {
 				panic(err)
 			}
