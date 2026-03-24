@@ -37,3 +37,12 @@ func UintptrToUnixFD(input uintptr) (dbus.UnixFD, error) {
 
 	return dbus.UnixFD(input), nil
 }
+
+// UnixFDToUintptr is a fast converter from a dbus UnixFD to a uintptr.
+func UnixFDToUintptr(input dbus.UnixFD) (uintptr, error) {
+	if input < 0 {
+		return 0, errors.New("invalid unix fd")
+	}
+
+	return uintptr(input), nil
+}

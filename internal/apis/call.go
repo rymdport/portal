@@ -9,14 +9,19 @@ func CallWithoutResult(callName string, args ...any) error {
 
 // Call calls the given call name for a portal using passed arguments and returns the output.
 func Call(callName string, args ...any) (any, error) {
+	var result any
+	err := CallStore(callName, []any{&result}, args...)
+	return result, err
+}
+
+// CallStore calls the given call name and stores the results into the provided pointers.
+func CallStore(callName string, results []any, args ...any) error {
 	call, err := callOnObject(ObjectPath, callName, args...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var result any
-	err = call.Store(&result)
-	return result, err
+	return call.Store(results...)
 }
 
 // CallOnObject calls the specified callName on the given object.
