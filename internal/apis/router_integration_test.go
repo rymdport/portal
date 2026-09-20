@@ -1,5 +1,4 @@
 //go:build integration
-// +build integration
 
 package apis
 
@@ -33,10 +32,7 @@ func TestSubscribeSignal_EndToEnd(t *testing.T) {
 	}
 	defer conn.RemoveMatchSignal(match...)
 
-	ch, cleanup, err := SubscribeSignal(path, iface, member)
-	if err != nil {
-		t.Fatalf("SubscribeSignal: %v", err)
-	}
+	ch, cleanup := SubscribeSignal(conn, path, iface, member)
 	defer cleanup()
 
 	if err := conn.Emit(path, iface+"."+member, "world"); err != nil {

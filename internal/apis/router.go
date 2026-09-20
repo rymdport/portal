@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"slices"
 	"sync"
 
 	"github.com/godbus/dbus/v5"
@@ -16,42 +17,31 @@ type routerKey struct {
 	name string // interface.member
 }
 
-var (
-	routerInitMu sync.Mutex
-	routerReady  bool
+type router struct {
+	attach sync.Once
 
-	routerMu   sync.Mutex
-	routerSubs = map[routerKey][]chan<- *dbus.Signal{}
-)
-
-func ensureRouter() error {
-	routerInitMu.Lock()
-	defer routerInitMu.Unlock()
-	if routerReady {
-		return nil
-	}
-
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return err
-	}
-
-	all := make(chan *dbus.Signal, 256)
-	conn.Signal(all)
-	go routerLoop(all)
-
-	routerReady = true
-	return nil
+	mu   sync.Mutex
+	subs map[routerKey][]chan<- *dbus.Signal
 }
 
-func routerLoop(in <-chan *dbus.Signal) {
+var defaultRouter = &router{subs: map[routerKey][]chan<- *dbus.Signal{}}
+
+func (r *router) attachTo(conn *dbus.Conn) {
+	r.attach.Do(func() {
+		in := make(chan *dbus.Signal, 256)
+		conn.Signal(in)
+		go r.loop(in)
+	})
+}
+
+func (r *router) loop(in <-chan *dbus.Signal) {
 	for sig := range in {
 		key := routerKey{path: sig.Path, name: sig.Name}
 
 		// snapshot the subscriber list so we don't hold the lock while sending
-		routerMu.Lock()
-		targets := append([]chan<- *dbus.Signal(nil), routerSubs[key]...)
-		routerMu.Unlock()
+		r.mu.Lock()
+		targets := append([]chan<- *dbus.Signal(nil), r.subs[key]...)
+		r.mu.Unlock()
 
 		for _, ch := range targets {
 			select {
@@ -62,23 +52,22 @@ func routerLoop(in <-chan *dbus.Signal) {
 	}
 }
 
-func registerSubscriber(key routerKey, ch chan<- *dbus.Signal) (cleanup func()) {
-	routerMu.Lock()
-	routerSubs[key] = append(routerSubs[key], ch)
-	routerMu.Unlock()
+func (r *router) subscribe(key routerKey, ch chan<- *dbus.Signal) (cleanup func()) {
+	r.mu.Lock()
+	r.subs[key] = append(r.subs[key], ch)
+	r.mu.Unlock()
 
 	return func() {
-		routerMu.Lock()
-		defer routerMu.Unlock()
-		subs := routerSubs[key]
-		for i, c := range subs {
-			if c == ch {
-				routerSubs[key] = append(subs[:i], subs[i+1:]...)
-				break
-			}
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		subs := r.subs[key]
+		if i := slices.Index(subs, ch); i >= 0 {
+			subs = slices.Delete(subs, i, i+1)
 		}
-		if len(routerSubs[key]) == 0 {
-			delete(routerSubs, key)
+		if len(subs) == 0 {
+			delete(r.subs, key)
+		} else {
+			r.subs[key] = subs
 		}
 	}
 }
@@ -87,11 +76,13 @@ func registerSubscriber(key routerKey, ch chan<- *dbus.Signal) (cleanup func()) 
 // (path, interface.member), and a cleanup to unsubscribe. The caller is
 // still responsible for AddMatchSignal/RemoveMatchSignal so the bus
 // forwards the signals to this connection.
-func SubscribeSignal(path dbus.ObjectPath, interfaceName, memberName string) (<-chan *dbus.Signal, func(), error) {
-	if err := ensureRouter(); err != nil {
-		return nil, nil, err
-	}
+//
+// conn must be the shared session bus: the router attaches to whichever
+// connection it sees first and ignores any other.
+func SubscribeSignal(conn *dbus.Conn, path dbus.ObjectPath, interfaceName, memberName string) (<-chan *dbus.Signal, func()) {
+	defaultRouter.attachTo(conn)
+
 	key := routerKey{path: path, name: interfaceName + "." + memberName}
-	ch := make(chan *dbus.Signal, 4)
-	return ch, registerSubscriber(key, ch), nil
+	ch := make(chan *dbus.Signal, 16) // absorbs bursts like SettingChanged on theme switch
+	return ch, defaultRouter.subscribe(key, ch)
 }

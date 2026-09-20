@@ -26,12 +26,7 @@ func ListenOnSignalAt(path dbus.ObjectPath, interfaceName, signalName string) (<
 		return nil, nil, err
 	}
 
-	ch, unsubscribe, err := SubscribeSignal(path, interfaceName, signalName)
-	if err != nil {
-		_ = conn.RemoveMatchSignal(matchOptions...)
-		return nil, nil, err
-	}
-
+	ch, unsubscribe := SubscribeSignal(conn, path, interfaceName, signalName)
 	cleanup := func() {
 		unsubscribe()
 		_ = conn.RemoveMatchSignal(matchOptions...)

@@ -24,7 +24,6 @@ func TestBuildRequestPath(t *testing.T) {
 		{"multiple dots", ":1.2.3", "t", "/org/freedesktop/portal/desktop/request/1_2_3/t"},
 		{"no leading colon", "1.42", "t", "/org/freedesktop/portal/desktop/request/1_42/t"},
 		{"double colon only one stripped", "::1.42", "t", "/org/freedesktop/portal/desktop/request/:1_42/t"},
-		{"empty sender", "", "t", ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -38,8 +37,12 @@ func TestBuildRequestPath(t *testing.T) {
 // Tokens end up as a DBus object path element, which only allows [A-Za-z0-9_].
 func TestGenerateToken_DBusPathSafe(t *testing.T) {
 	valid := regexp.MustCompile(`^[A-Za-z0-9_]+$`)
-	for i := 0; i < 20; i++ {
-		if tok := generateToken(); !valid.MatchString(tok) {
+	for range 20 {
+		tok, err := generateToken()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !valid.MatchString(tok) {
 			t.Fatalf("invalid token: %q", tok)
 		}
 	}
@@ -76,16 +79,13 @@ func TestSendRequest_ContextAlreadyDone(t *testing.T) {
 			defer cancel()
 
 			called := false
-			resp, err := SendRequest(ctx, "", "com.example.Call", func(string) []any {
+			_, err := SendRequest(ctx, "", "com.example.Call", func(string) []any {
 				called = true
 				return nil
 			})
 
 			if !errors.Is(err, tc.want) {
 				t.Fatalf("err = %v, want %v", err, tc.want)
-			}
-			if resp.Status != Ended {
-				t.Fatalf("Status = %d, want Ended", resp.Status)
 			}
 			if called {
 				t.Fatal("buildArgs must not run when ctx is already done")

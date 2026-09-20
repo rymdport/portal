@@ -1,6 +1,8 @@
 package memorymonitor
 
 import (
+	"context"
+
 	"github.com/rymdport/portal/internal/apis"
 )
 
@@ -14,26 +16,33 @@ type LowMemoryWarning struct {
 // with 0 being the lowest level of memory availability warning,
 // and 255 being the highest.
 //
-// This function blocks for the lifetime of the subscription; the
-// subscription is released only when the process exits.
+// Deprecated: Use OnSignalLowMemoryWarningContext, which can be stopped.
 func OnSignalLowMemoryWarning(callback func(warning LowMemoryWarning)) error {
-	signal, _, err := apis.ListenOnSignal(interfaceName, "LowMemoryWarning")
+	return OnSignalLowMemoryWarningContext(context.Background(), callback)
+}
+
+// OnSignalLowMemoryWarningContext is OnSignalLowMemoryWarning with a context.
+// It returns ctx.Err() once ctx is done.
+func OnSignalLowMemoryWarningContext(ctx context.Context, callback func(warning LowMemoryWarning)) error {
+	signal, cleanup, err := apis.ListenOnSignal(interfaceName, "LowMemoryWarning")
 	if err != nil {
 		return err
 	}
+	defer cleanup()
 
-	for sig := range signal {
-		if len(sig.Body) == 0 {
-			continue
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case sig := <-signal:
+			if len(sig.Body) == 0 {
+				continue
+			}
+			level, ok := sig.Body[0].(byte)
+			if !ok {
+				continue
+			}
+			callback(LowMemoryWarning{Level: level})
 		}
-
-		level, ok := sig.Body[0].(byte)
-		if !ok {
-			continue
-		}
-
-		callback(LowMemoryWarning{Level: level})
 	}
-
-	return nil
 }

@@ -7,20 +7,17 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
-func resetRouter(t *testing.T) {
-	t.Helper()
-	routerMu.Lock()
-	defer routerMu.Unlock()
-	routerSubs = map[routerKey][]chan<- *dbus.Signal{}
+func newTestRouter() *router {
+	return &router{subs: map[routerKey][]chan<- *dbus.Signal{}}
 }
 
 func k(path dbus.ObjectPath, iface, member string) routerKey {
 	return routerKey{path: path, name: iface + "." + member}
 }
 
-// drive runs routerLoop against a set of incoming signals and blocks until it
+// drive runs r.loop against a set of incoming signals and blocks until it
 // drains. Helper so each test reads as a flat sequence.
-func drive(t *testing.T, sigs ...*dbus.Signal) {
+func drive(t *testing.T, r *router, sigs ...*dbus.Signal) {
 	t.Helper()
 	in := make(chan *dbus.Signal, len(sigs))
 	for _, s := range sigs {
@@ -28,17 +25,17 @@ func drive(t *testing.T, sigs ...*dbus.Signal) {
 	}
 	close(in)
 	done := make(chan struct{})
-	go func() { routerLoop(in); close(done) }()
+	go func() { r.loop(in); close(done) }()
 	<-done
 }
 
 func TestRouter_DeliversMatchingSignal(t *testing.T) {
-	resetRouter(t)
+	r := newTestRouter()
 
 	ch := make(chan *dbus.Signal, 1)
-	defer registerSubscriber(k("/p", "i.f", "M"), ch)()
+	defer r.subscribe(k("/p", "i.f", "M"), ch)()
 
-	drive(t, &dbus.Signal{Path: "/p", Name: "i.f.M", Body: []any{"hi"}})
+	drive(t, r, &dbus.Signal{Path: "/p", Name: "i.f.M", Body: []any{"hi"}})
 
 	select {
 	case <-ch:
@@ -51,12 +48,13 @@ func TestRouter_DeliversMatchingSignal(t *testing.T) {
 // this change memorymonitor and settings were cross-delivering each other's
 // signals because they share the portal base path.
 func TestRouter_FiltersByFullKey(t *testing.T) {
-	resetRouter(t)
+	r := newTestRouter()
 
 	ch := make(chan *dbus.Signal, 4)
-	defer registerSubscriber(k("/a", "i.f", "M1"), ch)()
+	defer r.subscribe(k("/a", "i.f", "M1"), ch)()
 
-	drive(t,
+	drive(
+		t, r,
 		&dbus.Signal{Path: "/a", Name: "i.f.M2"},   // wrong member
 		&dbus.Signal{Path: "/a", Name: "other.M1"}, // wrong interface
 		&dbus.Signal{Path: "/b", Name: "i.f.M1"},   // wrong path
@@ -69,16 +67,16 @@ func TestRouter_FiltersByFullKey(t *testing.T) {
 }
 
 func TestRouter_CleanupRemovesOnlyOwnChannel(t *testing.T) {
-	resetRouter(t)
+	r := newTestRouter()
 
 	ch1 := make(chan *dbus.Signal, 1)
 	ch2 := make(chan *dbus.Signal, 1)
-	cleanup1 := registerSubscriber(k("/p", "i.f", "M"), ch1)
-	defer registerSubscriber(k("/p", "i.f", "M"), ch2)()
+	cleanup1 := r.subscribe(k("/p", "i.f", "M"), ch1)
+	defer r.subscribe(k("/p", "i.f", "M"), ch2)()
 
 	cleanup1()
 
-	drive(t, &dbus.Signal{Path: "/p", Name: "i.f.M"})
+	drive(t, r, &dbus.Signal{Path: "/p", Name: "i.f.M"})
 
 	if len(ch1) != 0 {
 		t.Fatal("ch1 should be unsubscribed")
@@ -91,24 +89,25 @@ func TestRouter_CleanupRemovesOnlyOwnChannel(t *testing.T) {
 // Cleanup is invoked both explicitly on error paths and via defer, so it must
 // tolerate repeated calls.
 func TestRouter_CleanupIsIdempotent(t *testing.T) {
-	resetRouter(t)
+	r := newTestRouter()
 
-	cleanup := registerSubscriber(k("/p", "i.f", "M"), make(chan *dbus.Signal, 1))
+	cleanup := r.subscribe(k("/p", "i.f", "M"), make(chan *dbus.Signal, 1))
 	cleanup()
 	cleanup()
 }
 
 // A slow subscriber must not block the router or starve other subscribers;
-// routerLoop uses a non-blocking send.
+// loop uses a non-blocking send.
 func TestRouter_SlowSubscriberDropsInsteadOfBlocking(t *testing.T) {
-	resetRouter(t)
+	r := newTestRouter()
 
 	slow := make(chan *dbus.Signal) // unbuffered, never read
 	fast := make(chan *dbus.Signal, 4)
-	defer registerSubscriber(k("/p", "i.f", "M"), slow)()
-	defer registerSubscriber(k("/p", "i.f", "M"), fast)()
+	defer r.subscribe(k("/p", "i.f", "M"), slow)()
+	defer r.subscribe(k("/p", "i.f", "M"), fast)()
 
-	drive(t,
+	drive(
+		t, r,
 		&dbus.Signal{Path: "/p", Name: "i.f.M"},
 		&dbus.Signal{Path: "/p", Name: "i.f.M"},
 		&dbus.Signal{Path: "/p", Name: "i.f.M"},

@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 )
@@ -15,22 +17,35 @@ type Changed struct {
 // OnSignalSettingChanged listens for the SettingChanged signal.
 // This signal is emitted when a setting changes.
 //
-// This function blocks for the lifetime of the subscription; the subscription
-// is released only when the process exits.
+// Deprecated: Use OnSignalSettingChangedContext, which can be stopped.
 func OnSignalSettingChanged(callback func(changed Changed)) error {
-	signal, _, err := apis.ListenOnSignal(interfaceName, "SettingChanged")
+	return OnSignalSettingChangedContext(context.Background(), callback)
+}
+
+// OnSignalSettingChangedContext is OnSignalSettingChanged with a context.
+// It returns ctx.Err() once ctx is done.
+func OnSignalSettingChangedContext(ctx context.Context, callback func(changed Changed)) error {
+	signal, cleanup, err := apis.ListenOnSignal(interfaceName, "SettingChanged")
 	if err != nil {
 		return err
 	}
+	defer cleanup()
 
-	for sig := range signal {
+	for {
+		var sig *dbus.Signal
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case sig = <-signal:
+		}
+
 		if len(sig.Body) == 0 {
 			continue
 		}
 
 		namespace, ok := sig.Body[0].(string)
 		if !ok {
-			continue // We sometimes get responses from other portals.
+			continue
 		}
 
 		changed := Changed{Namespace: namespace}
@@ -54,6 +69,4 @@ func OnSignalSettingChanged(callback func(changed Changed)) error {
 
 		callback(changed)
 	}
-
-	return nil
 }
