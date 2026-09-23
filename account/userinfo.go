@@ -1,8 +1,9 @@
 package account
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 )
@@ -25,32 +26,34 @@ type UserInfoResult struct {
 // GetUserInformation gets information about the current user.
 // Both return values will be nil if the user cancelled the request.
 func GetUserInformation(parentWindow string, options *UserInfoOptions) (*UserInfoResult, error) {
-	data := map[string]dbus.Variant{}
-	if options != nil {
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
-		}
+	return GetUserInformationContext(context.Background(), parentWindow, options)
+}
 
-		if options.Reason != "" {
+// GetUserInformationContext is GetUserInformation with a context.
+func GetUserInformationContext(ctx context.Context, parentWindow string, options *UserInfoOptions) (*UserInfoResult, error) {
+	userToken := ""
+	if options != nil {
+		userToken = options.HandleToken
+	}
+
+	resp, err := request.SendRequest(ctx, userToken, getUserInfoCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		if options != nil && options.Reason != "" {
 			data["reason"] = convert.FromString(options.Reason)
 		}
-	}
-
-	result, err := apis.Call(getUserInfoCallName, parentWindow, data)
+		return []any{parentWindow, data}
+	})
 	if err != nil {
 		return nil, err
-	}
-
-	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
-	if err != nil {
-		return nil, err
-	} else if status == request.Cancelled {
+	} else if resp.Status == request.Cancelled {
 		return nil, nil
 	}
 
-	id := results["id"].Value().(string)
-	name := results["name"].Value().(string)
-	image := results["image"].Value().(string)
+	id, _ := resp.Results["id"].Value().(string)
+	name, _ := resp.Results["name"].Value().(string)
+	image, _ := resp.Results["image"].Value().(string)
 	return &UserInfoResult{
 		Id:    id,
 		Name:  name,

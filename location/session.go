@@ -1,6 +1,8 @@
 package location
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
@@ -18,38 +20,66 @@ type StartOptions struct {
 	HandleToken string
 }
 
-// Session is the value for a created location session.
-// The zero value is not usable.
+// Session is a location session. The zero value is not usable; obtain one
+// from CreateSession.
 type Session struct {
-	path dbus.ObjectPath
+	path     dbus.ObjectPath
+	done     chan struct{} // closed by Close to stop listeners
+	cleanups []func()
 }
 
-// Close closes the current session.
+// Close releases listener goroutines and closes the portal session.
 func (s *Session) Close() error {
+	if s.done != nil {
+		select {
+		case <-s.done: // already closed
+		default:
+			close(s.done)
+		}
+	}
+	for _, c := range s.cleanups {
+		c()
+	}
+	s.cleanups = nil
 	return session.Close(s.path)
 }
 
-// SetOnClosed sets a callback to run when the session is closed by the portal.
+// SetOnClosed sets a callback to run when the portal closes the session.
+// The goroutine exits on Close even if the signal never arrives.
 func (s *Session) SetOnClosed(callback func(error)) {
+	done := s.ensureDone()
 	go func() {
-		_, err := session.OnSignalClosed(s.path)
+		_, err := session.OnSignalClosed(s.path, done)
+		select {
+		case <-done:
+			return // cancelled by Close
+		default:
+		}
 		callback(err)
 	}()
 }
 
 // SetOnLocationUpdated sets a callback to run when the location changes.
+// The listener runs until Close is called.
 func (s *Session) SetOnLocationUpdated(callback func(Location)) error {
-	signal, err := apis.ListenOnSignalAt(s.path, interfaceName, locationUpdatedMember)
+	signal, cleanup, err := apis.ListenOnSignalAt(s.path, interfaceName, locationUpdatedMember)
 	if err != nil {
 		return err
 	}
+	s.cleanups = append(s.cleanups, cleanup)
+	done := s.ensureDone()
 
 	go func() {
-		for trigger := range signal {
+		for {
+			var trigger *dbus.Signal
+			select {
+			case <-done:
+				return
+			case trigger = <-signal:
+			}
 			if len(trigger.Body) != 2 {
 				continue
 			}
-
 			if path, ok := trigger.Body[0].(dbus.ObjectPath); !ok || path != s.path {
 				continue
 			}
@@ -70,19 +100,29 @@ func (s *Session) SetOnLocationUpdated(callback func(Location)) error {
 	return nil
 }
 
-// Start the location session. An application can only attempt start a session once.
+func (s *Session) ensureDone() chan struct{} {
+	if s.done == nil {
+		s.done = make(chan struct{})
+	}
+	return s.done
+}
+
+// Start the location session. An application can only start a session once.
 func (s *Session) Start(parentWindow string, options *StartOptions) error {
-	data := map[string]dbus.Variant{}
+	return s.StartContext(context.Background(), parentWindow, options)
+}
+
+// StartContext is Start with a context.
+func (s *Session) StartContext(ctx context.Context, parentWindow string, options *StartOptions) error {
+	userToken := ""
 	if options != nil {
-		data["HandleToken"] = convert.FromString(options.HandleToken)
+		userToken = options.HandleToken
 	}
-
-	result, err := apis.Call(startCallName, s.path, parentWindow, data)
-	if err != nil {
-		return err
-	}
-
-	path := result.(dbus.ObjectPath)
-	_, _, err = request.OnSignalResponse(path)
+	_, err := request.SendRequest(ctx, userToken, startCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		return []any{s.path, parentWindow, data}
+	})
 	return err
 }

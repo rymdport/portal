@@ -1,32 +1,39 @@
-// Package filechooser allows sandboxed applications to ask the user for access to files outside the sandbox. The portal backend will present the user with a file chooser dialog.
-// Upstream API documentation can be found at https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.FileChooser.html.
+// Package filechooser asks the user to pick files through the xdg-desktop-portal
+// FileChooser interface.
+//
+// https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.FileChooser.html
 package filechooser
 
 import (
+	"context"
 	"net/url"
 
-	"github.com/godbus/dbus/v5"
 	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/request"
 )
 
 const interfaceName = apis.CallBaseName + ".FileChooser"
 
-func readURIFromResponse(path dbus.ObjectPath) ([]string, error) {
-	status, results, err := request.OnSignalResponse(path)
+func callForURIs(ctx context.Context, token, callName string, buildArgs func(token string) []any) ([]string, error) {
+	resp, err := request.SendRequest(ctx, token, callName, buildArgs)
 	if err != nil {
 		return nil, err
-	} else if status == request.Cancelled {
+	}
+	if resp.Status == request.Cancelled {
 		return nil, nil
 	}
 
-	uris := results["uris"].Value().([]string)
-	for i, uri := range uris {
+	rawURIs, ok := resp.Results["uris"].Value().([]string)
+	if !ok {
+		return nil, nil
+	}
+
+	uris := make([]string, len(rawURIs))
+	for i, uri := range rawURIs {
 		uris[i], err = url.QueryUnescape(uri)
 		if err != nil {
 			return nil, err
 		}
 	}
-
 	return uris, nil
 }

@@ -1,8 +1,9 @@
 package background
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 )
@@ -26,37 +27,41 @@ type RequestResult struct {
 
 // RequestBackground requests that the application is allowed to run in the background.
 func RequestBackground(parentWindow string, options *RequestOptions) (*RequestResult, error) {
-	data := map[string]dbus.Variant{}
+	return RequestBackgroundContext(context.Background(), parentWindow, options)
+}
+
+// RequestBackgroundContext is RequestBackground with a context.
+func RequestBackgroundContext(ctx context.Context, parentWindow string, options *RequestOptions) (*RequestResult, error) {
+	userToken := ""
 	if options != nil {
-		data["autostart"] = convert.FromBool(options.Autostart)
-		data["dbus-activatable"] = convert.FromBool(options.DbusActivatable)
-
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
-		}
-
-		if options.Reason != "" {
-			data["reason"] = convert.FromString(options.Reason)
-		}
-
-		if len(options.Commandline) != 0 {
-			data["commandline"] = dbus.MakeVariant(options.Commandline) // TODO: Might want to create fast converter for []string.
-		}
+		userToken = options.HandleToken
 	}
 
-	result, err := apis.Call(requestCallName, parentWindow, data)
-	if err != nil {
-		return nil, err
-	}
+	resp, err := request.SendRequest(ctx, userToken, requestCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		if options != nil {
+			data["autostart"] = convert.FromBool(options.Autostart)
+			data["dbus-activatable"] = convert.FromBool(options.DbusActivatable)
 
-	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
+			if options.Reason != "" {
+				data["reason"] = convert.FromString(options.Reason)
+			}
+
+			if len(options.Commandline) != 0 {
+				data["commandline"] = dbus.MakeVariant(options.Commandline) // TODO: Might want to create fast converter for []string.
+			}
+		}
+		return []any{parentWindow, data}
+	})
 	if err != nil {
 		return nil, err
-	} else if status == request.Cancelled {
+	} else if resp.Status == request.Cancelled {
 		return nil, nil // Cancelled by user.
 	}
 
-	background := results["background"].Value().(bool)
-	autostart := results["autostart"].Value().(bool)
+	background, _ := resp.Results["background"].Value().(bool)
+	autostart, _ := resp.Results["autostart"].Value().(bool)
 	return &RequestResult{Background: background, Autostart: autostart}, nil
 }

@@ -1,9 +1,10 @@
 package usb
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
 
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 )
@@ -27,6 +28,11 @@ type dbusAcquireDevice struct {
 //
 // The org.freedesktop.portal.Request::Response signal is emitted without any extra information.
 func AcquireDevices(parentWindow string, options []AcquireDeviceOptions) (dbus.ObjectPath, error) {
+	return AcquireDevicesContext(context.Background(), parentWindow, options)
+}
+
+// AcquireDevicesContext is AcquireDevices with a context.
+func AcquireDevicesContext(ctx context.Context, parentWindow string, options []AcquireDeviceOptions) (dbus.ObjectPath, error) {
 	devices := make([]dbusAcquireDevice, len(options))
 	for i, dev := range options {
 		opts := map[string]dbus.Variant{}
@@ -40,19 +46,17 @@ func AcquireDevices(parentWindow string, options []AcquireDeviceOptions) (dbus.O
 		}
 	}
 
-	data := map[string]dbus.Variant{}
-
-	result, err := apis.Call(acquireDevicesCallName, parentWindow, devices, data)
+	resp, err := request.SendRequest(ctx, "", acquireDevicesCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		return []any{parentWindow, devices, data}
+	})
 	if err != nil {
 		return "", err
-	}
-
-	status, _, err := request.OnSignalResponse(result.(dbus.ObjectPath))
-	if err != nil {
-		return "", err
-	} else if status >= request.Cancelled {
+	} else if resp.Status >= request.Cancelled {
 		return "", nil
 	}
 
-	return result.(dbus.ObjectPath), nil
+	return resp.Handle, nil
 }

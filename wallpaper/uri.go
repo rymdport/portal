@@ -1,18 +1,13 @@
 package wallpaper
 
-import (
-	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
-)
+import "context"
 
 // SetWallpaperURI sets wallpaper specified as a URI.
 func SetWallpaperURI(parentWindow string, uri string, options *SetWallpaperOptions) error {
-	data := dbusDataFromOptions(options)
+	return SetWallpaperURIContext(context.Background(), parentWindow, uri, options)
+}
 
-	result, err := apis.Call(setWallpaperURICallName, parentWindow, uri, data)
-	if err != nil {
-		return err
-	}
-
-	return readStatusFromResponse(result.(dbus.ObjectPath))
+// SetWallpaperURIContext is SetWallpaperURI with a context.
+func SetWallpaperURIContext(ctx context.Context, parentWindow string, uri string, options *SetWallpaperOptions) error {
+	return setWallpaper(ctx, setWallpaperURICallName, []any{parentWindow, uri}, options)
 }

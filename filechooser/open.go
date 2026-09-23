@@ -1,8 +1,9 @@
 package filechooser
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 )
 
@@ -24,41 +25,42 @@ type OpenFileOptions struct {
 // OpenFile opens a filechooser for selecting a file to open.
 // The chooser will use the supplied title as it's name.
 func OpenFile(parentWindow, title string, options *OpenFileOptions) ([]string, error) {
-	data := map[string]dbus.Variant{}
+	return OpenFileContext(context.Background(), parentWindow, title, options)
+}
+
+// OpenFileContext is OpenFile with a context.
+func OpenFileContext(ctx context.Context, parentWindow, title string, options *OpenFileOptions) ([]string, error) {
+	userToken := ""
 	if options != nil {
-		data["modal"] = convert.FromBool(!options.NotModal)
-		data["multiple"] = convert.FromBool(options.Multiple)
-		data["directory"] = convert.FromBool(options.Directory)
-
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
-		}
-
-		if options.AcceptLabel != "" {
-			data["accept_label"] = convert.FromString(options.AcceptLabel)
-		}
-
-		if len(options.Filters) > 0 {
-			data["filters"] = dbus.MakeVariant(options.Filters)
-		}
-
-		if options.CurrentFilter != nil {
-			data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
-		}
-
-		if len(options.Choices) > 0 {
-			data["choices"] = dbus.MakeVariant(options.Choices)
-		}
-
-		if options.CurrentFolder != "" {
-			data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
-		}
+		userToken = options.HandleToken
 	}
 
-	result, err := apis.Call(openFileCallName, parentWindow, title, data)
-	if err != nil {
-		return nil, err
-	}
+	return callForURIs(ctx, userToken, openFileCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		if options != nil {
+			data["modal"] = convert.FromBool(!options.NotModal)
+			data["multiple"] = convert.FromBool(options.Multiple)
+			data["directory"] = convert.FromBool(options.Directory)
 
-	return readURIFromResponse(result.(dbus.ObjectPath))
+			if options.AcceptLabel != "" {
+				data["accept_label"] = convert.FromString(options.AcceptLabel)
+			}
+			if len(options.Filters) > 0 {
+				data["filters"] = dbus.MakeVariant(options.Filters)
+			}
+			if options.CurrentFilter != nil {
+				data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
+			}
+			if len(options.Choices) > 0 {
+				data["choices"] = dbus.MakeVariant(options.Choices)
+			}
+			if options.CurrentFolder != "" {
+				data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
+			}
+		}
+
+		return []any{parentWindow, title, data}
+	})
 }

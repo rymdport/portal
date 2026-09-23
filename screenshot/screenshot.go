@@ -3,6 +3,8 @@
 package screenshot
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
 
 	"github.com/rymdport/portal/internal/apis"
@@ -24,27 +26,33 @@ type ScreenshotOptions struct {
 
 // Screenshot takes a screenshot, and returns the result path as a string.
 func Screenshot(parentWindow string, options *ScreenshotOptions) (string, error) {
-	data := map[string]dbus.Variant{}
+	return ScreenshotContext(context.Background(), parentWindow, options)
+}
+
+// ScreenshotContext is like [Screenshot] but accepts a [context.Context] that
+// can be used to cancel the request.
+func ScreenshotContext(ctx context.Context, parentWindow string, options *ScreenshotOptions) (string, error) {
+	userToken := ""
 	if options != nil {
-		data["modal"] = convert.FromBool(!options.NotModal)
-		data["interactive"] = convert.FromBool(options.Interactive)
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
+		userToken = options.HandleToken
+	}
+
+	resp, err := request.SendRequest(ctx, userToken, screenshotCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
 		}
-	}
-
-	result, err := apis.Call(screenshotCallName, parentWindow, data)
+		if options != nil {
+			data["modal"] = convert.FromBool(!options.NotModal)
+			data["interactive"] = convert.FromBool(options.Interactive)
+		}
+		return []any{parentWindow, data}
+	})
 	if err != nil {
 		return "", err
-	}
-
-	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
-	if err != nil {
-		return "", err
-	} else if status >= request.Cancelled {
+	} else if resp.Status >= request.Cancelled {
 		return "", nil
 	}
 
-	uri := results["uri"].Value().(string)
+	uri, _ := resp.Results["uri"].Value().(string)
 	return uri, nil
 }

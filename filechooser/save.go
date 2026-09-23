@@ -1,8 +1,9 @@
 package filechooser
 
 import (
+	"context"
+
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 )
 
@@ -26,45 +27,45 @@ type SaveFileOptions struct {
 // SaveFile opens a filechooser for selecting where to save a file.
 // The chooser will use the supplied title as it's name.
 func SaveFile(parentWindow, title string, options *SaveFileOptions) ([]string, error) {
-	data := map[string]dbus.Variant{}
+	return SaveFileContext(context.Background(), parentWindow, title, options)
+}
+
+// SaveFileContext is SaveFile with a context.
+func SaveFileContext(ctx context.Context, parentWindow, title string, options *SaveFileOptions) ([]string, error) {
+	userToken := ""
 	if options != nil {
-		data["modal"] = convert.FromBool(!options.NotModal)
-
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
-		}
-
-		if options.AcceptLabel != "" {
-			data["accept_label"] = convert.FromString(options.AcceptLabel)
-		}
-
-		if len(options.Filters) > 0 {
-			data["filters"] = dbus.MakeVariant(options.Filters)
-		}
-
-		if options.CurrentFilter != nil {
-			data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
-		}
-
-		if len(options.Choices) > 0 {
-			data["choices"] = dbus.MakeVariant(options.Choices)
-		}
-
-		if options.CurrentName != "" {
-			data["current_name"] = convert.FromString(options.CurrentName)
-		}
-
-		if options.CurrentFolder != "" {
-			data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
-		}
+		userToken = options.HandleToken
 	}
 
-	result, err := apis.Call(saveFileCallName, parentWindow, title, data)
-	if err != nil {
-		return nil, err
-	}
+	return callForURIs(ctx, userToken, saveFileCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		if options != nil {
+			data["modal"] = convert.FromBool(!options.NotModal)
 
-	return readURIFromResponse(result.(dbus.ObjectPath))
+			if options.AcceptLabel != "" {
+				data["accept_label"] = convert.FromString(options.AcceptLabel)
+			}
+			if len(options.Filters) > 0 {
+				data["filters"] = dbus.MakeVariant(options.Filters)
+			}
+			if options.CurrentFilter != nil {
+				data["current_filter"] = dbus.MakeVariant(options.CurrentFilter)
+			}
+			if len(options.Choices) > 0 {
+				data["choices"] = dbus.MakeVariant(options.Choices)
+			}
+			if options.CurrentName != "" {
+				data["current_name"] = convert.FromString(options.CurrentName)
+			}
+			if options.CurrentFolder != "" {
+				data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
+			}
+		}
+
+		return []any{parentWindow, title, data}
+	})
 }
 
 // SaveFilesOptions contains the options for how files are saved.
@@ -80,42 +81,41 @@ type SaveFilesOptions struct {
 // SaveFiles opens a filechooser for selecting where to save one or more files.
 // The chooser will use the supplied title as it's name.
 func SaveFiles(parentWindow, title string, options *SaveFilesOptions) ([]string, error) {
-	data := map[string]dbus.Variant{}
+	return SaveFilesContext(context.Background(), parentWindow, title, options)
+}
 
+// SaveFilesContext is SaveFiles with a context.
+func SaveFilesContext(ctx context.Context, parentWindow, title string, options *SaveFilesOptions) ([]string, error) {
+	userToken := ""
 	if options != nil {
-		data = map[string]dbus.Variant{
-			"modal": convert.FromBool(!options.NotModal),
-		}
+		userToken = options.HandleToken
+	}
 
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
+	return callForURIs(ctx, userToken, saveFilesCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
 		}
+		if options != nil {
+			data["modal"] = convert.FromBool(!options.NotModal)
 
-		if options.AcceptLabel != "" {
-			data["accept_label"] = convert.FromString(options.AcceptLabel)
-		}
-
-		if len(options.Choices) > 0 {
-			data["choices"] = dbus.MakeVariant(options.Choices)
-		}
-
-		if options.CurrentFolder != "" {
-			data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
-		}
-
-		if len(options.Files) > 0 {
-			files := make([][]byte, len(options.Files))
-			for i, file := range options.Files {
-				files[i] = convert.FromStringToNullTerminated(file)
+			if options.AcceptLabel != "" {
+				data["accept_label"] = convert.FromString(options.AcceptLabel)
 			}
-			data["files"] = dbus.MakeVariant(files)
+			if len(options.Choices) > 0 {
+				data["choices"] = dbus.MakeVariant(options.Choices)
+			}
+			if options.CurrentFolder != "" {
+				data["current_folder"] = convert.ToNullTerminatedValue(options.CurrentFolder)
+			}
+			if len(options.Files) > 0 {
+				files := make([][]byte, len(options.Files))
+				for i, file := range options.Files {
+					files[i] = convert.FromStringToNullTerminated(file)
+				}
+				data["files"] = dbus.MakeVariant(files)
+			}
 		}
-	}
 
-	result, err := apis.Call(saveFilesCallName, parentWindow, title, data)
-	if err != nil {
-		return nil, err
-	}
-
-	return readURIFromResponse(result.(dbus.ObjectPath))
+		return []any{parentWindow, title, data}
+	})
 }

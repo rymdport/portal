@@ -67,6 +67,18 @@ func main() {
 }
 ```
 
+Every function that opens a portal dialog has a `*Context` variant. Cancelling the context asks the portal to dismiss the dialog:
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+
+files, err := filechooser.OpenFileContext(ctx, "", "Select files", nil)
+if errors.Is(err, context.DeadlineExceeded) {
+	// user did not pick a file within 30s; dialog was dismissed
+}
+```
+
 ## Supported Portal Interfaces
 
 The list below contains all of the portal interfaces available within the project. Checked boxes are partially or completely implemented within this project. Note that this list usually refers to the state of the `main` branch and not necessarily the latest release.

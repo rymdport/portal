@@ -1,10 +1,10 @@
 package secret
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
 	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 )
@@ -27,38 +27,41 @@ type RetrieveOptions struct {
 // The portal may return an additional identifier associated with the secret in the results.
 // In the next call of this method, the application shall provide a token element in options.
 func RetrieveSecret(fd uintptr, options *RetrieveOptions) (string, error) {
+	return RetrieveSecretContext(context.Background(), fd, options)
+}
+
+// RetrieveSecretContext is RetrieveSecret with a context.
+func RetrieveSecretContext(ctx context.Context, fd uintptr, options *RetrieveOptions) (string, error) {
 	unixFD, err := convert.UintptrToUnixFD(fd)
 	if err != nil {
 		return "", err
 	}
 
-	data := map[string]dbus.Variant{}
+	userToken := ""
 	if options != nil {
-		if options.HandleToken != "" {
-			data["handle_token"] = convert.FromString(options.HandleToken)
+		userToken = options.HandleToken
+	}
+
+	resp, err := request.SendRequest(ctx, userToken, retrieveSecretCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
 		}
-		if options.Token != "" {
+		if options != nil && options.Token != "" {
 			data["token"] = convert.FromString(options.Token)
 		}
-	}
-
-	result, err := apis.Call(retrieveSecretCallName, unixFD, data)
+		return []any{unixFD, data}
+	})
 	if err != nil {
 		return "", err
-	}
-
-	path := result.(dbus.ObjectPath)
-	status, results, err := request.OnSignalResponse(path)
-	if err != nil {
-		return "", err
-	} else if status > request.Success {
+	} else if resp.Status > request.Success {
 		return "", nil
 	}
 
-	if token, ok := results["token"]; ok {
-		return token.Value().(string), nil
-	} else if len(results) != 0 {
-		fmt.Println("Please contribute this information to rymdport/portal: ", results)
+	if token, ok := resp.Results["token"]; ok {
+		value, _ := token.Value().(string)
+		return value, nil
+	} else if len(resp.Results) != 0 {
+		fmt.Println("Please contribute this information to rymdport/portal: ", resp.Results)
 	}
 
 	return "", nil

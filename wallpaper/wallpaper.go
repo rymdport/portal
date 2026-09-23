@@ -2,6 +2,7 @@
 package wallpaper
 
 import (
+	"context"
 	"errors"
 
 	"github.com/godbus/dbus/v5"
@@ -31,27 +32,29 @@ type SetWallpaperOptions struct {
 	SetOn       Location // Where to set the wallpaper. Possible values are Background, Lockscreen, or Both constants
 }
 
-func dbusDataFromOptions(options *SetWallpaperOptions) map[string]dbus.Variant {
-	data := map[string]dbus.Variant{}
-	if options != nil {
-		data["show-preview"] = convert.FromBool(options.ShowPreview)
-
-		if options.SetOn != "" {
-			data["set-on"] = convert.FromString(string(options.SetOn))
+func setWallpaper(ctx context.Context, callName string, callArgs []any, options *SetWallpaperOptions) error {
+	resp, err := request.SendRequest(ctx, "", callName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
 		}
-	}
-	return data
-}
+		if options != nil {
+			data["show-preview"] = convert.FromBool(options.ShowPreview)
+			if options.SetOn != "" {
+				data["set-on"] = convert.FromString(string(options.SetOn))
+			}
+		}
 
-func readStatusFromResponse(path dbus.ObjectPath) error {
-	status, _, err := request.OnSignalResponse(path)
+		args := make([]any, 0, len(callArgs)+1)
+		args = append(args, callArgs...)
+		args = append(args, data)
+		return args
+	})
 	if err != nil {
 		return err
 	}
 
-	if status == request.Ended {
+	if resp.Status == request.Ended {
 		return errors.New("operation cancelled by system")
 	}
-
 	return nil
 }

@@ -1,11 +1,12 @@
 package screenshot
 
 import (
+	"context"
 	"image/color"
 	"math"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rymdport/portal/internal/apis"
+	"github.com/rymdport/portal/internal/convert"
 	"github.com/rymdport/portal/internal/request"
 )
 
@@ -18,24 +19,32 @@ type PickerOptions struct {
 
 // PickColor obtains the color of a single pixel.
 func PickColor(parentWindow string, options *PickerOptions) (*color.RGBA, error) {
-	data := map[string]dbus.Variant{}
-	if options != nil && options.HandleToken != "" {
-		data["handleToken"] = dbus.MakeVariant(options.HandleToken)
+	return PickColorContext(context.Background(), parentWindow, options)
+}
+
+// PickColorContext is PickColor with a context.
+func PickColorContext(ctx context.Context, parentWindow string, options *PickerOptions) (*color.RGBA, error) {
+	userToken := ""
+	if options != nil {
+		userToken = options.HandleToken
 	}
 
-	result, err := apis.Call(pickColorCallName, parentWindow, data)
+	resp, err := request.SendRequest(ctx, userToken, pickColorCallName, func(token string) []any {
+		data := map[string]dbus.Variant{
+			"handle_token": convert.FromString(token),
+		}
+		return []any{parentWindow, data}
+	})
 	if err != nil {
 		return nil, err
-	}
-
-	status, results, err := request.OnSignalResponse(result.(dbus.ObjectPath))
-	if err != nil {
-		return nil, err
-	} else if status == request.Cancelled {
+	} else if resp.Status == request.Cancelled {
 		return nil, nil
 	}
 
-	components := results["color"].Value().([]any)
+	components, ok := resp.Results["color"].Value().([]any)
+	if !ok || len(components) < 3 {
+		return nil, nil
+	}
 	red := math.Round(math.Max(0.0, math.Min(1.0, components[0].(float64))) * 255)
 	green := math.Round(math.Max(0.0, math.Min(1.0, components[1].(float64))) * 255)
 	blue := math.Round(math.Max(0.0, math.Min(1.0, components[2].(float64))) * 255)
